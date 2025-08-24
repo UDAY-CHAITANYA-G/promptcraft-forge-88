@@ -1,6 +1,9 @@
 import { useState } from "react"
 import { FrameworkCard } from "./FrameworkCard"
 import { Button } from "@/components/ui/button"
+import { useNavigate } from "react-router-dom"
+import { useAuth } from "@/hooks/useAuth"
+import { useApiConfig } from "@/hooks/useApiConfig"
 
 const frameworks = [
   {
@@ -71,6 +74,22 @@ const frameworks = [
 
 export function FrameworkSelection() {
   const [selectedFramework, setSelectedFramework] = useState(frameworks[0].id)
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const { hasAnyConfig } = useApiConfig()
+  
+  const handleGeneratePrompt = () => {
+    if (!user) {
+      navigate('/auth')
+      return
+    }
+
+    if (hasAnyConfig) {
+      navigate('/prompt-generator')
+    } else {
+      navigate('/api-config')
+    }
+  }
   
   return (
     <section className="py-20 px-6 bg-gradient-surface/50">
@@ -96,7 +115,12 @@ export function FrameworkSelection() {
         </div>
         
         <div className="text-center">
-          <Button variant="hero" size="lg" className="text-lg">
+          <Button 
+            variant="hero" 
+            size="lg" 
+            className="text-lg"
+            onClick={handleGeneratePrompt}
+          >
             Generate Prompt with {frameworks.find(f => f.id === selectedFramework)?.name}
           </Button>
         </div>

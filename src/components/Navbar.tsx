@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/hooks/useAuth'
 import { Link } from 'react-router-dom'
-import { LogOut, User } from 'lucide-react'
+import { LogOut, User, Key, Sparkles } from 'lucide-react'
 
 export function Navbar() {
   const { user, signOut } = useAuth()
@@ -26,6 +26,24 @@ export function Navbar() {
           </Link>
           
           <div className="flex items-center space-x-4">
+            {/* Navigation Links */}
+            <div className="hidden md:flex items-center space-x-4">
+              <Link 
+                to="/api-config" 
+                className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Key className="w-4 h-4" />
+                API Config
+              </Link>
+              <Link 
+                to="/prompt-generator" 
+                className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Sparkles className="w-4 h-4" />
+                Prompt Generator
+              </Link>
+            </div>
+            
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

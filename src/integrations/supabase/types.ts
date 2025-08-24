@@ -41,6 +41,44 @@ export type Database = {
         }
         Relationships: []
       }
+      api_configurations: {
+        Row: {
+          id: string
+          user_id: string
+          provider: 'openai' | 'gemini' | 'anthropic'
+          api_key_encrypted: string
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          provider: 'openai' | 'gemini' | 'anthropic'
+          api_key_encrypted: string
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          provider?: 'openai' | 'gemini' | 'anthropic'
+          api_key_encrypted?: string
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_configurations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
