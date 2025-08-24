@@ -46,7 +46,7 @@ class ApiConfigService {
         throw new Error('User not authenticated');
       }
 
-      console.log('Fetching API configs for user:', user.id);
+      // Fetching API configs for user
 
       const { data, error } = await supabase
         .from('api_configurations')
@@ -59,7 +59,7 @@ class ApiConfigService {
         throw error;
       }
 
-      console.log('Fetched configs:', data);
+      // Configs fetched successfully
 
       const configs: ApiKeyData = {};
       data?.forEach(config => {
@@ -86,7 +86,7 @@ class ApiConfigService {
         throw new Error('User not authenticated');
       }
 
-      console.log(`Saving ${provider} API key for user:`, user.id);
+      // Saving API key for user
 
       const encryptedKey = this.encrypt(apiKey);
       
@@ -104,7 +104,7 @@ class ApiConfigService {
       }
 
       if (existingConfig) {
-        console.log('Updating existing config:', existingConfig.id);
+        // Updating existing config
         // Update existing config
         const { error } = await supabase
           .from('api_configurations')
@@ -120,7 +120,7 @@ class ApiConfigService {
           return false;
         }
       } else {
-        console.log('Inserting new config for provider:', provider);
+        // Inserting new config for provider
         // Insert new config
         const { error } = await supabase
           .from('api_configurations')
@@ -143,7 +143,7 @@ class ApiConfigService {
         }
       }
 
-      console.log(`Successfully saved ${provider} API key`);
+      // API key saved successfully
       return true;
     } catch (error) {
       console.error('Error in saveApiConfig:', error);
@@ -182,7 +182,7 @@ class ApiConfigService {
     if (!apiKey.trim()) return false;
     
     const keyPatterns = {
-      openai: /^sk-[a-zA-Z0-9]{32,}$/,
+      openai: /^sk-(proj-)?[a-zA-Z0-9_-]{32,}$/,
       gemini: /^AIza[a-zA-Z0-9_-]{35}$/,
       anthropic: /^sk-ant-[a-zA-Z0-9]{32,}$/
     };
@@ -195,6 +195,80 @@ class ApiConfigService {
     // This is a placeholder for actual API testing
     // In production, you might want to make a real API call to validate the key
     return this.validateApiKeyFormat(provider, apiKey);
+  }
+
+  // Get detailed validation information for an API key
+  getApiKeyValidationDetails(provider: keyof ApiKeyData, apiKey: string): {
+    isValid: boolean;
+    errors: string[];
+    warnings: string[];
+  } {
+    const result = {
+      isValid: true,
+      errors: [] as string[],
+      warnings: [] as string[]
+    };
+
+    if (!apiKey.trim()) {
+      result.isValid = false;
+      result.errors.push('API key cannot be empty');
+      return result;
+    }
+
+    const trimmedKey = apiKey.trim();
+    
+    switch (provider) {
+      case 'openai':
+        // Check if it starts with sk-
+        if (!trimmedKey.startsWith('sk-')) {
+          result.isValid = false;
+          result.errors.push('OpenAI API key must start with "sk-"');
+        }
+        
+        // Check if it's a project key (sk-proj-)
+        if (trimmedKey.startsWith('sk-proj-')) {
+          result.warnings.push('This appears to be a project-level API key');
+        }
+        
+        // Check length (minimum 32 chars after sk-)
+        const keyPart = trimmedKey.replace(/^sk-(proj-)?/, '');
+        if (keyPart.length < 32) {
+          result.isValid = false;
+          result.errors.push('API key part must be at least 32 characters long');
+        }
+        
+        // Check for valid characters
+        if (!/^[a-zA-Z0-9_-]+$/.test(keyPart)) {
+          result.isValid = false;
+          result.errors.push('API key contains invalid characters (only letters, numbers, hyphens, and underscores allowed)');
+        }
+        break;
+
+      case 'gemini':
+        if (!trimmedKey.startsWith('AIza')) {
+          result.isValid = false;
+          result.errors.push('Gemini API key must start with "AIza"');
+        }
+        if (trimmedKey.length !== 39) {
+          result.isValid = false;
+          result.errors.push('Gemini API key must be exactly 39 characters long');
+        }
+        break;
+
+      case 'anthropic':
+        if (!trimmedKey.startsWith('sk-ant-')) {
+          result.isValid = false;
+          result.errors.push('Anthropic API key must start with "sk-ant-"');
+        }
+        const antKeyPart = trimmedKey.replace(/^sk-ant-/, '');
+        if (antKeyPart.length < 32) {
+          result.isValid = false;
+          result.errors.push('Anthropic API key part must be at least 32 characters long');
+        }
+        break;
+    }
+
+    return result;
   }
 
   // Get all API configurations for the current user
