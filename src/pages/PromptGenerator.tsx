@@ -12,6 +12,8 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useApiConfig } from '@/hooks/useApiConfig';
+import { LeftSidebar } from '@/components/LeftSidebar';
+import { userPreferencesService, frameworks } from '@/lib/userPreferencesService';
 
 interface Framework {
   id: string;
@@ -103,7 +105,8 @@ const PromptGenerator = () => {
   const { user } = useAuth();
   const { loading, hasAnyConfig } = useApiConfig();
   
-  const [selectedFramework, setSelectedFramework] = useState<Framework>(frameworks[0]);
+  const [selectedFramework, setSelectedFramework] = useState<Framework | null>(null);
+  const [userPreferences, setUserPreferences] = useState<any>(null);
   const [taskInfo, setTaskInfo] = useState<TaskInfo>({
     role: '',
     objective: '',
@@ -128,7 +131,31 @@ const PromptGenerator = () => {
     if (!loading && !hasAnyConfig) {
       navigate('/api-config');
     }
+
+    // Load user preferences
+    if (user && hasAnyConfig) {
+      loadUserPreferences();
+    }
   }, [user, navigate, loading, hasAnyConfig]);
+
+  const loadUserPreferences = async () => {
+    try {
+      const preferences = await userPreferencesService.getUserPreferences();
+      if (preferences) {
+        setUserPreferences(preferences);
+        const framework = frameworks.find(f => f.id === preferences.selected_framework);
+        if (framework) {
+          setSelectedFramework(framework);
+        }
+      } else {
+        // Set default framework if no preferences
+        setSelectedFramework(frameworks[0]);
+      }
+    } catch (error) {
+      console.error('Error loading user preferences:', error);
+      setSelectedFramework(frameworks[0]);
+    }
+  };
 
   const generatePrompt = () => {
     setIsGenerating(true);
@@ -249,12 +276,14 @@ ${info.length ? `Length: ${info.length}` : ''}`;
     setTaskInfo(prev => ({ ...prev, [field]: value }));
   };
 
-  if (loading) {
+  if (loading || !selectedFramework) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-6 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
-          <p className="text-muted-foreground">Checking your API configurations...</p>
+          <p className="text-muted-foreground">
+            {loading ? 'Checking your API configurations...' : 'Loading your preferences...'}
+          </p>
         </div>
       </div>
     );
@@ -277,75 +306,31 @@ ${info.length ? `Length: ${info.length}` : ''}`;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-6">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h1 className="text-4xl md:text-5xl font-bold text-gradient mb-4">
+          AI Prompt Generator
+        </h1>
+        <p className="text-xl text-muted-foreground">
+          Generate structured prompts using proven frameworks
+        </p>
+      </div>
+
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-gradient mb-4">
-            AI Prompt Generator
-          </h1>
-          <p className="text-xl text-muted-foreground">
-            Generate structured prompts using proven frameworks
-          </p>
-        </div>
-
-        {/* Framework Selection */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5" />
-              Select Framework
-            </CardTitle>
-            <CardDescription>
-              Choose the prompt engineering framework that best fits your task
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Select value={selectedFramework.id} onValueChange={(value) => {
-              const framework = frameworks.find(f => f.id === value);
-              if (framework) setSelectedFramework(framework);
-            }}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a framework" />
-              </SelectTrigger>
-              <SelectContent>
-                {frameworks.map((framework) => (
-                  <SelectItem key={framework.id} value={framework.id}>
-                    <div className="flex flex-col">
-                      <span className="font-semibold">{framework.name}</span>
-                      <span className="text-sm text-muted-foreground">{framework.description}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            <div className="mt-4">
-              <div className="flex flex-wrap gap-2">
-                {selectedFramework.components.map((component) => (
-                  <Badge key={component} variant="secondary">
-                    {component}
-                  </Badge>
-                ))}
-              </div>
-              <p className="text-sm text-muted-foreground mt-2">
-                Best for: {selectedFramework.bestFor}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
+        {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Side - Task Input */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bot className="w-5 h-5" />
-                Task Information
-              </CardTitle>
-              <CardDescription>
-                Fill in the details for your AI prompt
-              </CardDescription>
-            </CardHeader>
+                        {/* Left Side - Task Input */}
+            <div className="relative">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Bot className="w-5 h-5" />
+                    Task Information
+                  </CardTitle>
+                  <CardDescription>
+                    Fill in the details for your AI prompt
+                  </CardDescription>
+                </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="role">Role (Optional)</Label>
@@ -444,8 +429,12 @@ ${info.length ? `Length: ${info.length}` : ''}`;
               </Button>
             </CardContent>
           </Card>
+          
+          {/* Menu Icon positioned next to the Task Information box */}
+          <LeftSidebar />
+        </div>
 
-          {/* Right Side - Generated Prompt */}
+        {/* Right Side - Generated Prompt */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -499,17 +488,17 @@ ${info.length ? `Length: ${info.length}` : ''}`;
             </CardContent>
           </Card>
         </div>
+      </div>
 
-        {/* Navigation */}
-        <div className="flex justify-center mt-8">
-          <Button
-            onClick={() => navigate('/api-config')}
-            variant="outline"
-            size="lg"
-          >
-            Back to API Configuration
-          </Button>
-        </div>
+      {/* Navigation */}
+      <div className="flex justify-center mt-8">
+        <Button
+          onClick={() => navigate('/api-config')}
+          variant="outline"
+          size="lg"
+        >
+          Back to API Configuration
+        </Button>
       </div>
     </div>
   );

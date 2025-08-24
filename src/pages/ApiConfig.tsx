@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useApiConfig } from '@/hooks/useApiConfig';
 import { useToast } from '@/hooks/use-toast';
 import { apiConfigService } from '@/lib/apiConfigService';
+import { LeftSidebar } from '@/components/LeftSidebar';
 
 interface ApiConfig {
   openai: string;
@@ -180,6 +181,7 @@ const ApiConfig = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-6">
+      <LeftSidebar />
       <div className="max-w-4xl mx-auto">
         {/* Database Status Alert */}
         {dbStatus && (!dbStatus.connected || !dbStatus.tableExists) && (
