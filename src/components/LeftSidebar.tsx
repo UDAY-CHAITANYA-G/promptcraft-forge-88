@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Bot, Layers, ChevronRight } from 'lucide-react';
+import { Menu, X, Bot, Layers, ChevronRight, Code } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { useApiConfig } from '@/hooks/useApiConfig';
 import { userPreferencesService, frameworks, type UserPreferences } from '@/lib/userPreferencesService';
@@ -21,6 +23,17 @@ export const LeftSidebar: React.FC = () => {
   useEffect(() => {
     if (user && hasAnyConfig) {
       loadUserData();
+    }
+  }, [user, hasAnyConfig]);
+
+  // Subscribe to preference changes for real-time updates
+  useEffect(() => {
+    if (user && hasAnyConfig) {
+      const unsubscribe = userPreferencesService.subscribe((preferences) => {
+        setUserPreferences(preferences);
+      });
+
+      return unsubscribe;
     }
   }, [user, hasAnyConfig]);
 
@@ -59,12 +72,31 @@ export const LeftSidebar: React.FC = () => {
 
   const handleFrameworkSelect = async (framework: string) => {
     try {
-      await userPreferencesService.saveUserPreferences({ selected_framework: framework as any });
-      setUserPreferences(prev => prev ? { ...prev, selected_framework: framework as any } : null);
+      await userPreferencesService.saveUserPreferences({ 
+        selected_framework: framework as 'roses' | 'ape' | 'tag' | 'era' | 'race' | 'rise' | 'care' | 'coast' | 'trace' 
+      });
+      setUserPreferences(prev => prev ? { 
+        ...prev, 
+        selected_framework: framework as 'roses' | 'ape' | 'tag' | 'era' | 'race' | 'rise' | 'care' | 'coast' | 'trace' 
+      } : null);
       setShowFrameworkPopup(false);
       setActiveTab(null); // Mark framework tab as inactive
     } catch (error) {
       console.error('Error updating framework preference:', error);
+    }
+  };
+
+  const handleVibeCodingToggle = async (enabled: boolean) => {
+    try {
+      const success = await userPreferencesService.saveUserPreferences({
+        vibe_coding: enabled
+      });
+      
+      if (success) {
+        setUserPreferences(prev => prev ? { ...prev, vibe_coding: enabled } : null);
+      }
+    } catch (error) {
+      console.error('Error saving vibe coding preference:', error);
     }
   };
 
@@ -195,6 +227,28 @@ export const LeftSidebar: React.FC = () => {
                   </div>
                 </div>
               )}
+
+              {/* Vibe Coding Toggle */}
+              <div className="mt-4 p-3 bg-muted/50 rounded-lg border border-border">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Code className="h-4 w-4 text-primary" />
+                    <div>
+                      <Label htmlFor="vibe-coding" className="text-xs font-medium text-foreground">
+                        Vibe Coding
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Enable for simplified prompt generation
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    id="vibe-coding"
+                    checked={userPreferences?.vibe_coding || false}
+                    onCheckedChange={handleVibeCodingToggle}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </>
@@ -237,7 +291,7 @@ export const LeftSidebar: React.FC = () => {
                         ? 'border-primary bg-primary/5 shadow-md'
                         : 'border-border hover:border-primary/50 hover:bg-muted/50'
                     }`}
-                    onClick={() => handleModelSelect(model as any)}
+                    onClick={() => handleModelSelect(model as 'openai' | 'gemini' | 'anthropic')}
                   >
                     <div className="flex items-center space-x-3">
                       <span className="text-2xl">{getModelIcon(model)}</span>

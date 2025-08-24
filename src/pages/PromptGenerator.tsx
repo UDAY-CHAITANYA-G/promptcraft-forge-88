@@ -23,80 +23,10 @@ interface Framework {
   bestFor: string;
 }
 
-const frameworks: Framework[] = [
-  {
-    id: "roses",
-    name: "R.O.S.E.S",
-    description: "Role, Objective, Scenario, Expected output, Short form",
-    components: ["Role", "Objective", "Scenario", "Expected output", "Short form"],
-    bestFor: "Complex tasks requiring detailed context"
-  },
-  {
-    id: "ape",
-    name: "A.P.E",
-    description: "Action, Purpose, Expectation",
-    components: ["Action", "Purpose", "Expectation"],
-    bestFor: "Quick, action-oriented tasks"
-  },
-  {
-    id: "tag",
-    name: "T.A.G",
-    description: "Task, Action, Goal",
-    components: ["Task", "Action", "Goal"],
-    bestFor: "Straightforward problem-solving"
-  },
-  {
-    id: "era",
-    name: "E.R.A",
-    description: "Expectation, Role, Action",
-    components: ["Expectation", "Role", "Action"],
-    bestFor: "Role-playing scenarios"
-  },
-  {
-    id: "race",
-    name: "R.A.C.E",
-    description: "Role, Action, Context, Expectation",
-    components: ["Role", "Action", "Context", "Expectation"],
-    bestFor: "Professional and business contexts"
-  },
-  {
-    id: "rise",
-    name: "R.I.S.E",
-    description: "Role, Input, Steps, Expectation",
-    components: ["Role", "Input", "Steps", "Expectation"],
-    bestFor: "Process-driven tasks"
-  },
-  {
-    id: "care",
-    name: "C.A.R.E",
-    description: "Context, Action, Result, Example",
-    components: ["Context", "Action", "Result", "Example"],
-    bestFor: "Educational and training content"
-  },
-  {
-    id: "coast",
-    name: "C.O.A.S.T",
-    description: "Context, Objective, Actions, Scenario, Task",
-    components: ["Context", "Objective", "Actions", "Scenario", "Task"],
-    bestFor: "Complex multi-step processes"
-  },
-  {
-    id: "trace",
-    name: "T.R.A.C.E",
-    description: "Task, Role, Action, Context, Example",
-    components: ["Task", "Role", "Action", "Context", "Example"],
-    bestFor: "Detailed instruction-based prompts"
-  }
-];
-
 interface TaskInfo {
-  role: string;
-  objective: string;
-  context: string;
-  requirements: string;
-  examples: string;
-  tone: string;
-  length: string;
+  taskDescription: string;
+  tone?: string;
+  length?: string;
 }
 
 const PromptGenerator = () => {
@@ -106,13 +36,9 @@ const PromptGenerator = () => {
   const { loading, hasAnyConfig } = useApiConfig();
   
   const [selectedFramework, setSelectedFramework] = useState<Framework | null>(null);
-  const [userPreferences, setUserPreferences] = useState<any>(null);
+  const [userPreferences, setUserPreferences] = useState<{ selected_framework?: string; vibe_coding?: boolean } | null>(null);
   const [taskInfo, setTaskInfo] = useState<TaskInfo>({
-    role: '',
-    objective: '',
-    context: '',
-    requirements: '',
-    examples: '',
+    taskDescription: '',
     tone: 'professional',
     length: 'medium'
   });
@@ -137,6 +63,39 @@ const PromptGenerator = () => {
       loadUserPreferences();
     }
   }, [user, navigate, loading, hasAnyConfig]);
+
+  // Subscribe to preference changes for real-time updates
+  useEffect(() => {
+    if (user && hasAnyConfig) {
+      const unsubscribe = userPreferencesService.subscribe((preferences) => {
+        const previousVibeCoding = userPreferences?.vibe_coding;
+        setUserPreferences(preferences);
+        
+        // Update selected framework if it changed
+        if (preferences.selected_framework) {
+          const framework = frameworks.find(f => f.id === preferences.selected_framework);
+          if (framework) {
+            setSelectedFramework(framework);
+          }
+        }
+        
+        // Clear generated prompt when preferences change to show immediate effect
+        setGeneratedPrompt('');
+        
+        // Show toast notification when vibe coding changes
+        if (previousVibeCoding !== undefined && previousVibeCoding !== preferences.vibe_coding) {
+          toast({
+            title: preferences.vibe_coding ? "Vibe Coding Enabled" : "Vibe Coding Disabled",
+            description: preferences.vibe_coding 
+              ? "Tone and length sections are now hidden for simplified prompts"
+              : "Tone and length customization is now available",
+          });
+        }
+      });
+
+      return unsubscribe;
+    }
+  }, [user, hasAnyConfig, userPreferences?.vibe_coding, toast]);
 
   const loadUserPreferences = async () => {
     try {
@@ -173,79 +132,76 @@ const PromptGenerator = () => {
     
     switch (framework.id) {
       case 'roses':
-        prompt = `Role: ${info.role || '[Define the role]'}
-Objective: ${info.objective || '[Define the objective]'}
-Scenario: ${info.context || '[Describe the scenario]'}
-Expected Output: ${info.requirements || '[Specify expected output]'}
-Short Form: ${info.examples || '[Provide examples or constraints]'}`;
+        prompt = `Role: [Define the role based on the task]
+Objective: ${info.taskDescription || '[Describe your task]'}
+Steps: [Break down the task into steps]
+Examples: [Provide examples or references]
+Specifications: [Add any specific requirements]`;
         break;
         
       case 'ape':
-        prompt = `Action: ${info.objective || '[Define the action needed]'}
-Purpose: ${info.context || '[Explain the purpose]'}
-Expectation: ${info.requirements || '[Specify expectations]'}`;
+        prompt = `Action: ${info.taskDescription || '[Describe the action needed]'}
+Purpose: [Explain the purpose]
+Expectation: [Define expected outcome]`;
         break;
         
       case 'tag':
-        prompt = `Task: ${info.objective || '[Define the task]'}
-Action: ${info.requirements || '[Specify required actions]'}
-Goal: ${info.context || '[Describe the goal]'}`;
+        prompt = `Task: ${info.taskDescription || '[Describe the task]'}
+Action: [Specify the action]
+Goal: [Define the goal]`;
         break;
         
       case 'era':
-        prompt = `Expectation: ${info.requirements || '[Define expectations]'}
-Role: ${info.role || '[Specify the role]'}
-Action: ${info.objective || '[Describe the action]'}`;
+        prompt = `Expectation: [Set clear expectations]
+Role: [Define the role]
+Action: ${info.taskDescription || '[Describe the action]'}`;
         break;
         
       case 'race':
-        prompt = `Role: ${info.role || '[Define the role]'}
-Action: ${info.objective || '[Specify the action]'}
-Context: ${info.context || '[Provide context]'}
-Expectation: ${info.requirements || '[Set expectations]'}`;
+        prompt = `Role: [Define the role based on the task]
+Action: ${info.taskDescription || '[Describe the action]'}
+Context: [Provide context]
+Expectation: [Set expectations]`;
         break;
         
       case 'rise':
-        prompt = `Role: ${info.role || '[Define the role]'}
-Input: ${info.context || '[Specify input requirements]'}
-Steps: ${info.requirements || '[Outline steps]'}
-Expectation: ${info.examples || '[Set expectations]'}`;
+        prompt = `Role: [Define the role based on the task]
+Input: [Specify input requirements]
+Steps: [Outline steps for the task]
+Expectation: [Set expectations]`;
         break;
         
       case 'care':
-        prompt = `Context: ${info.context || '[Provide context]'}
-Action: ${info.objective || '[Specify action]'}
-Result: ${info.requirements || '[Define expected result]'}
-Example: ${info.examples || '[Provide examples]'}`;
+        prompt = `Context: [Provide context for the task]
+Action: ${info.taskDescription || '[Describe the action]'}
+Result: [Define expected result]
+Example: [Provide examples]`;
         break;
         
       case 'coast':
-        prompt = `Context: ${info.context || '[Provide context]'}
-Objective: ${info.objective || '[Define objective]'}
-Actions: ${info.requirements || '[Specify actions]'}
-Scenario: ${info.examples || '[Describe scenario]'}
-Task: ${info.role || '[Define the task]'}`;
+        prompt = `Context: [Provide context for the task]
+Objective: ${info.taskDescription || '[Define objective]'}
+Actions: [Specify actions needed]
+Scenario: [Describe scenario]
+Task: [Define the task]`;
         break;
         
       case 'trace':
-        prompt = `Task: ${info.objective || '[Define the task]'}
-Role: ${info.role || '[Specify the role]'}
-Action: ${info.requirements || '[Describe actions]'}
-Context: ${info.context || '[Provide context]'}
-Example: ${info.examples || '[Provide examples]'}`;
+        prompt = `Task: ${info.taskDescription || '[Define the task]'}
+Role: [Specify the role]
+Action: [Describe actions needed]
+Context: [Provide context]
+Example: [Provide examples]`;
         break;
         
       default:
         prompt = `Please provide the following information:
-${info.role ? `Role: ${info.role}` : ''}
-${info.objective ? `Objective: ${info.objective}` : ''}
-${info.context ? `Context: ${info.context}` : ''}
-${info.requirements ? `Requirements: ${info.requirements}` : ''}
-${info.examples ? `Examples: ${info.examples}` : ''}`;
+Task: ${info.taskDescription || '[Describe your task in detail]'}`;
     }
     
-    // Add tone and length preferences
-    if (info.tone || info.length) {
+    // Add tone and length preferences only if vibe coding is disabled
+    const isVibeCodingEnabled = userPreferences?.vibe_coding === true;
+    if (!isVibeCodingEnabled && (info.tone || info.length)) {
       prompt += `\n\nPreferences:
 ${info.tone ? `Tone: ${info.tone}` : ''}
 ${info.length ? `Length: ${info.length}` : ''}`;
@@ -325,108 +281,76 @@ ${info.length ? `Length: ${info.length}` : ''}`;
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <Bot className="w-5 h-5" />
-                    Task Information
+                    Task Description
+                    {userPreferences?.vibe_coding && (
+                      <Badge variant="secondary" className="text-xs bg-primary/10 text-primary border-primary/20">
+                        Vibe Coding Enabled
+                      </Badge>
+                    )}
                   </CardTitle>
                   <CardDescription>
-                    Fill in the details for your AI prompt
+                    {userPreferences?.vibe_coding 
+                      ? "Describe your task in detail for simplified AI prompt generation"
+                      : "Describe your task in detail for the AI prompt"
+                    }
                   </CardDescription>
                 </CardHeader>
             <CardContent className="space-y-3">
               <div className="space-y-1">
-                <Label htmlFor="role" className="text-sm">Role (Optional)</Label>
-                <Input
-                  id="role"
-                  placeholder="e.g., Marketing Expert, Data Analyst, Creative Writer"
-                  value={taskInfo.role}
-                  onChange={(e) => handleInputChange('role', e.target.value)}
-                  className="h-9"
-                />
-              </div>
-              
-              <div className="space-y-1">
-                <Label htmlFor="objective" className="text-sm">Objective/Task *</Label>
+                <Label htmlFor="taskDescription" className="text-sm">Task Details *</Label>
                 <Textarea
-                  id="objective"
-                  placeholder="What do you want the AI to do?"
-                  value={taskInfo.objective}
-                  onChange={(e) => handleInputChange('objective', e.target.value)}
-                  rows={2}
-                  className="min-h-[60px]"
+                  id="taskDescription"
+                  placeholder="Describe your task in detail. Include what you want the AI to do, any specific requirements, context, examples, or constraints..."
+                  value={taskInfo.taskDescription}
+                  onChange={(e) => handleInputChange('taskDescription', e.target.value)}
+                  rows={6}
+                  className="min-h-[120px] resize-none"
                 />
+                {userPreferences?.vibe_coding && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    💡 Vibe coding mode: Tone and length preferences are automatically optimized for your task.
+                  </p>
+                )}
               </div>
               
-              <div className="space-y-1">
-                <Label htmlFor="context" className="text-sm">Context (Optional)</Label>
-                <Textarea
-                  id="context"
-                  placeholder="Background information, situation, or environment"
-                  value={taskInfo.context}
-                  onChange={(e) => handleInputChange('context', e.target.value)}
-                  rows={2}
-                  className="min-h-[60px]"
-                />
-              </div>
-              
-              <div className="space-y-1">
-                <Label htmlFor="requirements" className="text-sm">Requirements/Constraints (Optional)</Label>
-                <Textarea
-                  id="requirements"
-                  placeholder="Specific requirements, format, or constraints"
-                  value={taskInfo.requirements}
-                  onChange={(e) => handleInputChange('requirements', e.target.value)}
-                  rows={2}
-                  className="min-h-[60px]"
-                />
-              </div>
-              
-              <div className="space-y-1">
-                <Label htmlFor="examples" className="text-sm">Examples/References (Optional)</Label>
-                <Textarea
-                  id="examples"
-                  placeholder="Examples, references, or similar outputs"
-                  value={taskInfo.examples}
-                  onChange={(e) => handleInputChange('examples', e.target.value)}
-                  rows={2}
-                  className="min-h-[60px]"
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <Label htmlFor="tone" className="text-sm">Tone</Label>
-                  <Select value={taskInfo.tone} onValueChange={(value) => handleInputChange('tone', value)}>
-                    <SelectTrigger className="h-9">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="professional">Professional</SelectItem>
-                      <SelectItem value="casual">Casual</SelectItem>
-                      <SelectItem value="friendly">Friendly</SelectItem>
-                      <SelectItem value="formal">Formal</SelectItem>
-                      <SelectItem value="creative">Creative</SelectItem>
-                    </SelectContent>
-                  </Select>
+              {!userPreferences?.vibe_coding && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label htmlFor="tone" className="text-sm">Tone</Label>
+                    <Select value={taskInfo.tone} onValueChange={(value) => handleInputChange('tone', value)}>
+                      <SelectTrigger className="h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="professional">Professional</SelectItem>
+                        <SelectItem value="casual">Casual</SelectItem>
+                        <SelectItem value="friendly">Friendly</SelectItem>
+                        <SelectItem value="formal">Formal</SelectItem>
+                        <SelectItem value="creative">Creative</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <Label htmlFor="length" className="text-sm">Length</Label>
+                    <Select value={taskInfo.length} onValueChange={(value) => handleInputChange('length', value)}>
+                      <SelectTrigger className="h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="short">Short</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="long">Long</SelectItem>
+                        <SelectItem value="detailed">Detailed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                
-                <div className="space-y-1">
-                  <Label htmlFor="length" className="text-sm">Length</Label>
-                  <Select value={taskInfo.length} onValueChange={(value) => handleInputChange('length', value)}>
-                    <SelectTrigger className="h-9">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="short">Short</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="long">Long</SelectItem>
-                      <SelectItem value="detailed">Detailed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+              )}
               
               <Button
                 onClick={generatePrompt}
-                disabled={!taskInfo.objective.trim() || isGenerating}
+                disabled={!taskInfo.taskDescription.trim() || isGenerating}
                 className="w-full mt-2"
                 size="default"
               >
@@ -448,6 +372,9 @@ ${info.length ? `Length: ${info.length}` : ''}`;
               </CardTitle>
               <CardDescription>
                 Your structured prompt based on the {selectedFramework.name} framework
+                {userPreferences?.vibe_coding && (
+                  <span className="text-primary"> • Vibe coding optimized</span>
+                )}
               </CardDescription>
             </CardHeader>
             <CardContent>

@@ -1,8 +1,12 @@
 import { supabase } from '@/integrations/supabase/client';
 
+// Event system for notifying components of preference changes
+type PreferenceChangeListener = (preferences: UserPreferences) => void;
+
 export interface UserPreferences {
   selected_model: 'openai' | 'gemini' | 'anthropic';
   selected_framework: 'roses' | 'ape' | 'tag' | 'era' | 'race' | 'rise' | 'care' | 'coast' | 'trace';
+  vibe_coding: boolean;
 }
 
 export interface FrameworkInfo {
@@ -82,6 +86,24 @@ export const frameworks: FrameworkInfo[] = [
 ];
 
 class UserPreferencesService {
+  private listeners: PreferenceChangeListener[] = [];
+
+  // Subscribe to preference changes
+  subscribe(listener: PreferenceChangeListener) {
+    this.listeners.push(listener);
+    return () => {
+      const index = this.listeners.indexOf(listener);
+      if (index > -1) {
+        this.listeners.splice(index, 1);
+      }
+    };
+  }
+
+  // Notify all listeners of preference changes
+  private notifyListeners(preferences: UserPreferences) {
+    this.listeners.forEach(listener => listener(preferences));
+  }
+
   // Get user preferences
   async getUserPreferences(): Promise<UserPreferences | null> {
     try {
@@ -92,7 +114,7 @@ class UserPreferencesService {
 
       const { data, error } = await supabase
         .from('user_preferences')
-        .select('selected_model, selected_framework')
+        .select('selected_model, selected_framework, vibe_coding')
         .eq('user_id', user.id)
         .single();
 
@@ -139,11 +161,18 @@ class UserPreferencesService {
         if (error) {
           throw error;
         }
+
+        // Get updated preferences and notify listeners
+        const updatedPrefs = await this.getUserPreferences();
+        if (updatedPrefs) {
+          this.notifyListeners(updatedPrefs);
+        }
       } else {
         // Insert new preferences with defaults
         const newPreferences: UserPreferences = {
           selected_model: preferences.selected_model || 'openai',
-          selected_framework: preferences.selected_framework || 'roses'
+          selected_framework: preferences.selected_framework || 'roses',
+          vibe_coding: preferences.vibe_coding !== undefined ? preferences.vibe_coding : false
         };
 
         const { error } = await supabase
@@ -156,6 +185,9 @@ class UserPreferencesService {
         if (error) {
           throw error;
         }
+
+        // Notify listeners of new preferences
+        this.notifyListeners(newPreferences);
       }
 
       return true;
@@ -199,7 +231,8 @@ class UserPreferencesService {
       if (defaultModel) {
         return await this.saveUserPreferences({
           selected_model: defaultModel,
-          selected_framework: 'roses'
+          selected_framework: 'roses',
+          vibe_coding: false
         });
       }
       return false;
