@@ -307,11 +307,11 @@ ${info.length ? `Length: ${info.length}` : ''}`;
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-6">
       {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-4xl md:text-5xl font-bold text-gradient mb-4">
+      <div className="text-center mb-6">
+        <h1 className="text-3xl md:text-4xl font-bold text-gradient mb-2">
           AI Prompt Generator
         </h1>
-        <p className="text-xl text-muted-foreground">
+        <p className="text-lg text-muted-foreground">
           Generate structured prompts using proven frameworks
         </p>
       </div>
@@ -322,8 +322,8 @@ ${info.length ? `Length: ${info.length}` : ''}`;
                         {/* Left Side - Task Input */}
             <div className="relative">
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
                     <Bot className="w-5 h-5" />
                     Task Information
                   </CardTitle>
@@ -331,66 +331,71 @@ ${info.length ? `Length: ${info.length}` : ''}`;
                     Fill in the details for your AI prompt
                   </CardDescription>
                 </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="role">Role (Optional)</Label>
+            <CardContent className="space-y-3">
+              <div className="space-y-1">
+                <Label htmlFor="role" className="text-sm">Role (Optional)</Label>
                 <Input
                   id="role"
                   placeholder="e.g., Marketing Expert, Data Analyst, Creative Writer"
                   value={taskInfo.role}
                   onChange={(e) => handleInputChange('role', e.target.value)}
+                  className="h-9"
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="objective">Objective/Task *</Label>
+              <div className="space-y-1">
+                <Label htmlFor="objective" className="text-sm">Objective/Task *</Label>
                 <Textarea
                   id="objective"
                   placeholder="What do you want the AI to do?"
                   value={taskInfo.objective}
                   onChange={(e) => handleInputChange('objective', e.target.value)}
-                  rows={3}
+                  rows={2}
+                  className="min-h-[60px]"
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="context">Context (Optional)</Label>
+              <div className="space-y-1">
+                <Label htmlFor="context" className="text-sm">Context (Optional)</Label>
                 <Textarea
                   id="context"
                   placeholder="Background information, situation, or environment"
                   value={taskInfo.context}
                   onChange={(e) => handleInputChange('context', e.target.value)}
-                  rows={3}
+                  rows={2}
+                  className="min-h-[60px]"
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="requirements">Requirements/Constraints (Optional)</Label>
+              <div className="space-y-1">
+                <Label htmlFor="requirements" className="text-sm">Requirements/Constraints (Optional)</Label>
                 <Textarea
                   id="requirements"
                   placeholder="Specific requirements, format, or constraints"
                   value={taskInfo.requirements}
                   onChange={(e) => handleInputChange('requirements', e.target.value)}
-                  rows={3}
+                  rows={2}
+                  className="min-h-[60px]"
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="examples">Examples/References (Optional)</Label>
+              <div className="space-y-1">
+                <Label htmlFor="examples" className="text-sm">Examples/References (Optional)</Label>
                 <Textarea
                   id="examples"
                   placeholder="Examples, references, or similar outputs"
                   value={taskInfo.examples}
                   onChange={(e) => handleInputChange('examples', e.target.value)}
-                  rows={3}
+                  rows={2}
+                  className="min-h-[60px]"
                 />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="tone">Tone</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label htmlFor="tone" className="text-sm">Tone</Label>
                   <Select value={taskInfo.tone} onValueChange={(value) => handleInputChange('tone', value)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-9">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -403,10 +408,10 @@ ${info.length ? `Length: ${info.length}` : ''}`;
                   </Select>
                 </div>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="length">Length</Label>
+                <div className="space-y-1">
+                  <Label htmlFor="length" className="text-sm">Length</Label>
                   <Select value={taskInfo.length} onValueChange={(value) => handleInputChange('length', value)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-9">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -422,8 +427,8 @@ ${info.length ? `Length: ${info.length}` : ''}`;
               <Button
                 onClick={generatePrompt}
                 disabled={!taskInfo.objective.trim() || isGenerating}
-                className="w-full"
-                size="lg"
+                className="w-full mt-2"
+                size="default"
               >
                 {isGenerating ? 'Generating...' : 'Generate Prompt'}
               </Button>
@@ -436,8 +441,8 @@ ${info.length ? `Length: ${info.length}` : ''}`;
 
         {/* Right Side - Generated Prompt */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
                 <Sparkles className="w-5 h-5" />
                 Generated Prompt
               </CardTitle>
@@ -447,8 +452,8 @@ ${info.length ? `Length: ${info.length}` : ''}`;
             </CardHeader>
             <CardContent>
               {generatedPrompt ? (
-                <div className="space-y-4">
-                  <div className="bg-muted/50 p-4 rounded-lg border">
+                <div className="space-y-3">
+                  <div className="bg-muted/50 p-3 rounded-lg border">
                     <pre className="whitespace-pre-wrap text-sm font-mono">{generatedPrompt}</pre>
                   </div>
                   
@@ -457,6 +462,7 @@ ${info.length ? `Length: ${info.length}` : ''}`;
                       onClick={copyToClipboard}
                       variant="outline"
                       className="flex-1"
+                      size="sm"
                     >
                       {copied ? (
                         <>
@@ -474,15 +480,16 @@ ${info.length ? `Length: ${info.length}` : ''}`;
                     <Button
                       onClick={() => setGeneratedPrompt('')}
                       variant="outline"
+                      size="sm"
                     >
                       Clear
                     </Button>
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-12 text-muted-foreground">
-                  <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>Fill in the task information and click "Generate Prompt" to see your structured prompt here.</p>
+                <div className="text-center py-8 text-muted-foreground">
+                  <Sparkles className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                  <p className="text-sm">Fill in the task information and click "Generate Prompt" to see your structured prompt here.</p>
                 </div>
               )}
             </CardContent>
@@ -491,11 +498,11 @@ ${info.length ? `Length: ${info.length}` : ''}`;
       </div>
 
       {/* Navigation */}
-      <div className="flex justify-center mt-8">
+      <div className="flex justify-center mt-6">
         <Button
           onClick={() => navigate('/api-config')}
           variant="outline"
-          size="lg"
+          size="default"
         >
           Back to API Configuration
         </Button>

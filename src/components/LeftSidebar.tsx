@@ -206,7 +206,6 @@ export const LeftSidebar: React.FC = () => {
           {/* Backdrop */}
           <div 
             className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
-            onClick={() => setShowModelPopup(false)}
           />
           
           {/* Models Popup */}
@@ -279,64 +278,63 @@ export const LeftSidebar: React.FC = () => {
           {/* Backdrop */}
           <div 
             className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
-            onClick={() => setShowFrameworkPopup(false)}
           />
           
           {/* Frameworks Popup */}
-          <div className="absolute left-96 top-12 z-50 w-[60rem] bg-background border border-border rounded-lg shadow-2xl">
+          <div className="absolute left-96 top-12 z-50 w-[65rem] bg-background border border-border rounded-lg shadow-2xl">
             <div className="p-4">
               {/* Header */}
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-foreground">Select Framework</h2>
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-base font-bold text-foreground">Select Framework</h2>
                                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowFrameworkPopup(false)}
-                    className="h-8 w-8 p-0"
+                    className="h-6 w-6 p-0"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-3 w-3" />
                   </Button>
               </div>
               
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-xs text-muted-foreground mb-2">
                 Choose your preferred prompt engineering framework. R.O.S.E.S is recommended for most use cases.
               </p>
               
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-2">
                 {frameworks.map((framework) => (
                   <Card
                     key={framework.id}
-                    className={`p-4 cursor-pointer transition-all hover:shadow-md ${
+                    className={`p-2 cursor-pointer transition-all hover:shadow-md ${
                       userPreferences?.selected_framework === framework.id
                         ? 'border-primary bg-primary/5 shadow-md'
                         : 'border-border hover:border-primary/50 hover:bg-muted/50'
                     }`}
                     onClick={() => handleFrameworkSelect(framework.id)}
                   >
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <h4 className="font-semibold text-foreground text-base">
+                        <h4 className="font-semibold text-foreground text-sm">
                           {framework.name}
                         </h4>
                         {userPreferences?.selected_framework === framework.id && (
-                          <ChevronRight className="h-5 w-5 text-primary flex-shrink-0" />
+                          <ChevronRight className="h-4 w-4 text-primary flex-shrink-0" />
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
+                      <p className="text-xs text-muted-foreground leading-tight">
                         {framework.description}
                       </p>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-1">
                         {framework.components.slice(0, 3).map((component, index) => (
                           <Badge
                             key={index}
                             variant="secondary"
-                            className="text-xs bg-muted/50 text-foreground border-border px-2 py-1"
+                            className="text-xs bg-muted/50 text-foreground border-border px-1 py-0.5"
                           >
                             {component}
                           </Badge>
                         ))}
                         {framework.components.length > 3 && (
-                          <Badge variant="outline" className="text-xs px-2 py-1">
+                          <Badge variant="outline" className="text-xs px-1 py-0.5">
                             +{framework.components.length - 3}
                           </Badge>
                         )}
