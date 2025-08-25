@@ -1,13 +1,31 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/hooks/useAuth'
 import { Link } from 'react-router-dom'
-import { LogOut, User, Building2 } from 'lucide-react'
+import { LogOut, User, Building2, Sun, Moon, Sparkles } from 'lucide-react'
 
 export function Navbar() {
   const { user, signOut } = useAuth()
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
+
+  useEffect(() => {
+    // Check for saved theme preference or default to dark
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark'
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    
+    const currentTheme = savedTheme || (prefersDark ? 'dark' : 'light')
+    setTheme(currentTheme)
+    document.documentElement.classList.toggle('dark', currentTheme === 'dark')
+  }, [])
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light'
+    setTheme(newTheme)
+    localStorage.setItem('theme', newTheme)
+    document.documentElement.classList.toggle('dark', newTheme === 'dark')
+  }
 
   const handleSignOut = async () => {
     await signOut()
@@ -29,7 +47,12 @@ export function Navbar() {
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 group">
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gradient">PromptForge</h1>
+              <div className="p-2 bg-gradient-to-r from-primary to-accent rounded-lg shadow-lg">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <h1 className="text-2xl font-bold text-gradient bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                PromptForge
+              </h1>
               <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground border-l border-border/50 pl-3">
                 <Building2 className="w-4 h-4" />
                 <span className="font-medium">ZeroXTech</span>
@@ -40,12 +63,26 @@ export function Navbar() {
           </Link>
           
           <div className="flex items-center space-x-4">
+            {/* Theme Toggle */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleTheme}
+              className="w-9 h-9 p-0 rounded-lg hover:bg-muted/50 transition-all duration-300"
+            >
+              {theme === 'light' ? (
+                <Moon className="w-4 h-4 text-muted-foreground" />
+              ) : (
+                <Sun className="w-4 h-4 text-muted-foreground" />
+              )}
+            </Button>
+
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-primary text-primary-foreground">
+                      <AvatarFallback className="bg-gradient-to-r from-primary to-accent text-primary-foreground">
                         {getInitials(user.email)}
                       </AvatarFallback>
                     </Avatar>
@@ -70,12 +107,12 @@ export function Navbar() {
             ) : (
               <div className="flex items-center space-x-2">
                 <Link to="/auth">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="hover:bg-primary hover:text-primary-foreground transition-all duration-300">
                     Sign In
                   </Button>
                 </Link>
                 <Link to="/auth">
-                  <Button size="sm">
+                  <Button size="sm" className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300">
                     Get Started
                   </Button>
                 </Link>
