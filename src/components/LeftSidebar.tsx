@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Bot, Layers, ChevronRight, Code } from 'lucide-react';
+import { Menu, X, Bot, Layers, ChevronRight, Code, History, Key } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,16 +9,20 @@ import { useAuth } from '@/hooks/useAuth';
 import { useApiConfig } from '@/hooks/useApiConfig';
 import { userPreferencesService, frameworks, type UserPreferences } from '@/lib/userPreferencesService';
 import { apiConfigService } from '@/lib/apiConfigService';
+import { HistoryPopup } from './HistoryPopup';
+import { useNavigate } from 'react-router-dom';
 
 export const LeftSidebar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'model' | 'framework' | null>(null);
   const [showModelPopup, setShowModelPopup] = useState(false);
   const [showFrameworkPopup, setShowFrameworkPopup] = useState(false);
+  const [showHistoryPopup, setShowHistoryPopup] = useState(false);
   const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null);
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const { user } = useAuth();
   const { hasAnyConfig } = useApiConfig();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user && hasAnyConfig) {
@@ -150,7 +154,7 @@ export const LeftSidebar: React.FC = () => {
 
   return (
     <>
-      {/* Hamburger Menu Button - Positioned next to Task Information box */}
+      {/* Settings Icon - Positioned next to Task Information box */}
       <Button
         variant="ghost"
         size="sm"
@@ -158,6 +162,28 @@ export const LeftSidebar: React.FC = () => {
         onClick={() => setIsOpen(!isOpen)}
       >
         {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+      </Button>
+
+      {/* History Icon - Below Settings Icon */}
+      <Button
+        variant="ghost"
+        size="sm"
+        className="absolute -left-12 top-16 bg-background/80 backdrop-blur-sm border border-border hover:bg-background rounded-lg shadow-lg"
+        onClick={() => setShowHistoryPopup(true)}
+        title="View History & Analytics"
+      >
+        <History className="h-5 w-5" />
+      </Button>
+
+      {/* API Configuration Icon - Below History Icon */}
+      <Button
+        variant="ghost"
+        size="sm"
+        className="absolute -left-12 top-32 bg-background/80 backdrop-blur-sm border border-border hover:bg-background rounded-lg shadow-lg"
+        onClick={() => navigate('/api-config')}
+        title="API Configuration"
+      >
+        <Key className="h-5 w-5" />
       </Button>
 
       {/* Main Settings Popup */}
@@ -249,6 +275,8 @@ export const LeftSidebar: React.FC = () => {
                   />
                 </div>
               </div>
+
+
             </div>
           </div>
         </>
@@ -404,6 +432,12 @@ export const LeftSidebar: React.FC = () => {
           </div>
         </>
       )}
+
+      {/* History Popup */}
+      <HistoryPopup 
+        isOpen={showHistoryPopup} 
+        onClose={() => setShowHistoryPopup(false)} 
+      />
     </>
   );
 };

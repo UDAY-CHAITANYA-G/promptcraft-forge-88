@@ -16,6 +16,7 @@ import { LeftSidebar } from '@/components/LeftSidebar';
 import { userPreferencesService, frameworks } from '@/lib/userPreferencesService';
 import { useMCP } from '@/hooks/useMCP';
 import { getMasterPrompt } from '@/lib/masterPromptConfig';
+import { promptHistoryService } from '@/lib/promptHistoryService';
 
 interface Framework {
   id: string;
@@ -132,9 +133,47 @@ const PromptGenerator = () => {
       return;
     }
 
+    // Test database connection
+    try {
+      console.log('🔍 [Test] Testing database connection...');
+      const testResult = await promptHistoryService.getPromptHistory(1);
+      console.log('✅ [Test] Database connection test successful:', testResult);
+    } catch (error) {
+      console.error('❌ [Test] Database connection test failed:', error);
+      console.error('❌ [Test] Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      });
+    }
+
     clearResponse();
     setGeneratedPrompt('');
     setGenerationTimestamp(null);
+    
+    // STEP 1: Store input details immediately when generate is clicked
+    let historyEntryId: string | null = null;
+    try {
+      console.log('=== STEP 1: Storing Input Details ===');
+      
+      const inputSaveResult = await promptHistoryService.savePromptHistoryInput({
+        framework_id: selectedFramework.id,
+        framework_name: selectedFramework.name,
+        model: activeModel,
+        user_input: taskInfo.taskDescription,
+        tone: taskInfo.tone,
+        length: taskInfo.length,
+        vibe_coding: userPreferences?.vibe_coding || false
+      });
+      
+      if (inputSaveResult.success) {
+        historyEntryId = inputSaveResult.entryId;
+        console.log('✅ Input details stored successfully with ID:', historyEntryId);
+      } else {
+        console.log('❌ Failed to store input details');
+      }
+    } catch (error) {
+      console.error('❌ Error storing input details:', error);
+    }
     
     try {
       const request = {
@@ -184,12 +223,53 @@ const PromptGenerator = () => {
         setGeneratedPrompt(cleanPrompt);
         setGenerationTimestamp(new Date());
         
+        // STEP 2: Update the history entry with AI response
+        if (historyEntryId) {
+          try {
+            console.log('=== STEP 2: Updating with AI Response ===');
+            
+            const updateResult = await promptHistoryService.updatePromptHistoryResponse(
+              historyEntryId,
+              cleanPrompt
+            );
+            
+            if (updateResult) {
+              console.log('✅ AI response updated successfully');
+            } else {
+              console.log('❌ Failed to update AI response');
+            }
+          } catch (error) {
+            console.error('❌ Error updating AI response:', error);
+          }
+        }
+        
         // Show success toast
         toast({
           title: "Prompt Generated!",
           description: `Successfully generated prompt using ${response.model?.toUpperCase()} model`,
         });
       } else if (response.error) {
+        // Update history entry with failed status
+        if (historyEntryId) {
+          try {
+            console.log('=== STEP 2: Updating with Failed Status ===');
+            
+            const updateResult = await promptHistoryService.updatePromptHistoryStatus(
+              historyEntryId,
+              'failed',
+              response.error
+            );
+            
+            if (updateResult) {
+              console.log('✅ Failed status updated successfully');
+            } else {
+              console.log('❌ Failed to update failed status');
+            }
+          } catch (error) {
+            console.error('❌ Error updating failed status:', error);
+          }
+        }
+        
         // Show error toast
         toast({
           title: "Generation Failed",
@@ -199,6 +279,28 @@ const PromptGenerator = () => {
       }
     } catch (error) {
       console.error('Error generating prompt:', error);
+      
+      // Update history entry with failed status if we have an entry ID
+      if (historyEntryId) {
+        try {
+          console.log('=== STEP 2: Updating with Failed Status (Exception) ===');
+          
+          const updateResult = await promptHistoryService.updatePromptHistoryStatus(
+            historyEntryId,
+            'failed',
+            error instanceof Error ? error.message : 'Unknown error occurred'
+          );
+          
+          if (updateResult) {
+            console.log('✅ Failed status updated successfully');
+          } else {
+            console.log('❌ Failed to update failed status');
+          }
+        } catch (updateError) {
+          console.error('❌ Error updating failed status:', updateError);
+        }
+      }
+      
       toast({
         title: "Error",
         description: "Failed to generate prompt. Please try again.",
@@ -301,7 +403,7 @@ const PromptGenerator = () => {
                     </Badge>
                   )}
                   {selectedFramework && (
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge variant="outline" className="text-xs">
                       Framework: {selectedFramework.name}
                     </Badge>
                   )}
@@ -322,7 +424,7 @@ const PromptGenerator = () => {
                     }}
                   />
                   {userPreferences?.vibe_coding && (
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-muted-foreground mt-2">
                       💡 Vibe coding mode: Tone and length preferences are automatically optimized for your task.
                     </p>
                   )}
@@ -475,16 +577,7 @@ const PromptGenerator = () => {
         </div>
       </div>
 
-      {/* Navigation */}
-      <div className="flex justify-center mt-6">
-        <Button
-          onClick={() => navigate('/api-config')}
-          variant="outline"
-          size="default"
-        >
-          Back to API Configuration
-        </Button>
-      </div>
+
     </div>
   );
 };
