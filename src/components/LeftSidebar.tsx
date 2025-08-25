@@ -220,21 +220,20 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ showNavigation = false
       {/* Main Settings Popup */}
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop - Static (no click to close) */}
           <div 
             className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50"
-            onClick={closeAllPopups}
           />
           
           {/* Main Settings Popup */}
-          <div className="absolute left-12 top-0 z-50 w-80 bg-background/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl animate-in slide-in-from-left-4 duration-300">
-            <div className="p-6">
+          <div className="absolute left-12 top-0 z-50 w-64 bg-background/95 border border-border/50 rounded-2xl shadow-2xl animate-in slide-in-from-left-4 duration-300">
+            <div className="p-4">
               {/* Header */}
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="text-xl font-bold text-foreground">Settings & Preferences</h2>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                    <Building2 className="w-4 h-4" />
+                  <h2 className="text-lg font-bold text-foreground">Settings & Preferences</h2>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                    <Building2 className="w-3 h-3" />
                     <span>ZeroXTech | Chaitanya</span>
                   </div>
                 </div>
@@ -242,51 +241,51 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ showNavigation = false
                   variant="ghost"
                   size="sm"
                   onClick={closeAllPopups}
-                  className="h-8 w-8 p-0 hover:bg-muted/50 rounded-lg"
+                  className="h-6 w-6 p-0 hover:bg-muted/50 rounded-lg"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-3 w-3" />
                 </Button>
               </div>
 
               {/* Tab Navigation */}
-              <div className="flex space-x-2 mb-6 bg-muted/50 p-1.5 rounded-xl">
+              <div className="flex space-x-2 mb-4 bg-muted/50 p-1 rounded-xl">
                 <Button
                   variant={activeTab === 'model' ? 'default' : 'ghost'}
                   size="sm"
-                  className="flex-1 h-9 text-sm font-medium rounded-lg"
+                  className="flex-1 h-8 text-xs font-medium rounded-lg"
                   onClick={() => handleTabClick('model')}
                 >
-                  <Bot className="h-4 w-4 mr-2" />
+                  <Bot className="h-3 w-3 mr-1" />
                   AI Model
                 </Button>
                 <Button
                   variant={activeTab === 'framework' ? 'default' : 'ghost'}
                   size="sm"
-                  className="flex-1 h-9 text-sm font-medium rounded-lg"
+                  className="flex-1 h-8 text-xs font-medium rounded-lg"
                   onClick={() => handleTabClick('framework')}
                 >
-                  <Layers className="h-4 w-4 mr-2" />
+                  <Layers className="h-3 w-3 mr-1" />
                   Framework
                 </Button>
               </div>
 
               {/* Current Selection Summary */}
               {userPreferences && (
-                <div className="mb-6 p-4 bg-gradient-to-r from-primary/5 to-accent/5 rounded-xl border border-primary/20">
-                  <h4 className="font-semibold text-foreground mb-3 text-sm flex items-center gap-2">
+                <div className="mb-4 p-3 bg-gradient-to-r from-primary/5 to-accent/5 rounded-xl border border-primary/20">
+                  <h4 className="font-semibold text-foreground mb-2 text-xs flex items-center gap-2">
                     <div className="w-2 h-2 bg-primary rounded-full"></div>
                     Current Configuration
                   </h4>
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <div className="flex items-center justify-between p-2 bg-background/50 rounded-lg">
-                      <span className="text-sm text-muted-foreground">AI Model:</span>
-                      <Badge variant="secondary" className="font-medium">
+                      <span className="text-xs text-muted-foreground">AI Model:</span>
+                      <Badge variant="secondary" className="font-medium text-xs">
                         {getModelIcon(userPreferences.selected_model)} {getModelDisplayName(userPreferences.selected_model)}
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between p-2 bg-background/50 rounded-lg">
-                      <span className="text-sm text-muted-foreground">Framework:</span>
-                      <Badge variant="secondary" className="font-medium">
+                      <span className="text-xs text-muted-foreground">Framework:</span>
+                      <Badge variant="secondary" className="font-medium text-xs">
                         {frameworks.find(f => f.id === userPreferences.selected_framework)?.name}
                       </Badge>
                     </div>
@@ -295,17 +294,17 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ showNavigation = false
               )}
 
               {/* Vibe Coding Toggle */}
-              <div className="p-4 bg-gradient-to-r from-muted/30 to-muted/50 rounded-xl border border-border/50">
+              <div className="p-3 bg-gradient-to-r from-muted/30 to-muted/50 rounded-xl border border-border/50">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <Code className="h-5 w-5 text-primary" />
+                  <div className="flex items-center space-x-2">
+                    <div className="p-1.5 bg-primary/10 rounded-lg">
+                      <Code className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <Label htmlFor="vibe-coding" className="text-sm font-semibold text-foreground">
+                      <Label htmlFor="vibe-coding" className="text-xs font-semibold text-foreground">
                         Vibe Coding Mode
                       </Label>
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-xs text-muted-foreground mt-0.5">
                         Simplified prompt generation
                       </p>
                     </div>
@@ -323,59 +322,53 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ showNavigation = false
         </>
       )}
 
-      {/* Models Popup */}
+      {/* Models Popup - Positioned to the right of settings popup */}
       {showModelPopup && (
         <>
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50"
-            onClick={() => setShowModelPopup(false)}
-          />
-          
           {/* Models Popup */}
-          <div className="absolute left-12 top-0 z-50 w-80 bg-background/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl animate-in slide-in-from-left-4 duration-300">
-            <div className="p-6">
+          <div className="absolute left-[20rem] top-0 z-50 w-64 bg-background border border-border/50 rounded-2xl shadow-2xl animate-in slide-in-from-left-4 duration-300">
+            <div className="p-4">
               {/* Header */}
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-foreground">Select AI Model</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-foreground">Select AI Model</h2>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowModelPopup(false)}
-                  className="h-8 w-8 p-0 hover:bg-muted/50 rounded-lg"
+                  className="h-6 w-6 p-0 hover:bg-muted/50 rounded-lg"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-3 w-3" />
                 </Button>
               </div>
               
-              <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+              <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
                 Choose your preferred AI model. Only models with configured API keys are available.
               </p>
               
-              <div className="space-y-3 max-h-80 overflow-y-auto pr-2">
+              <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
                 {availableModels.map((model) => (
                   <Card
                     key={model}
-                    className={`p-4 cursor-pointer transition-all duration-300 hover:shadow-lg border-2 ${
+                    className={`p-2.5 cursor-pointer transition-all duration-300 hover:shadow-lg border-2 ${
                       userPreferences?.selected_model === model
-                        ? 'border-primary bg-gradient-to-r from-primary/5 to-primary/10 shadow-lg scale-[1.02]'
-                        : 'border-border hover:border-primary/50 hover:bg-muted/30 hover:scale-[1.01]'
+                        ? 'border-primary bg-gradient-to-r from-primary/5 to-primary/10 shadow-md scale-[1.01]'
+                        : 'border-border hover:border-primary/50 hover:bg-muted/30 hover:scale-[1.005]'
                     }`}
                     onClick={() => handleModelSelect(model as 'openai' | 'gemini' | 'anthropic')}
                   >
-                    <div className="flex items-center space-x-4">
-                      <span className="text-3xl">{getModelIcon(model)}</span>
+                    <div className="flex items-center space-x-2.5">
+                      <span className="text-xl">{getModelIcon(model)}</span>
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-foreground text-base mb-1">
+                        <h4 className="font-semibold text-foreground text-xs mb-0.5">
                           {getModelDisplayName(model)}
                         </h4>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs text-muted-foreground">
                           {model === 'openai' ? 'GPT-4, GPT-3.5 Turbo' : 
                            model === 'gemini' ? 'Gemini Pro, Flash' : 'Claude 3.5 Sonnet'}
                         </p>
                       </div>
                       {userPreferences?.selected_model === model && (
-                        <Badge variant="default" className="bg-primary text-primary-foreground text-xs px-3 py-1.5 font-medium">
+                        <Badge variant="default" className="bg-primary text-primary-foreground text-xs px-1.5 py-0.5 font-medium">
                           Active
                         </Badge>
                       )}
@@ -384,10 +377,10 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ showNavigation = false
                 ))}
 
                 {availableModels.length === 0 && (
-                  <div className="text-center py-12 text-muted-foreground">
-                    <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p className="text-base font-medium mb-2">No API keys configured</p>
-                    <p className="text-sm">Configure API keys in settings to select a model</p>
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Bot className="h-8 w-8 mx-auto mb-3 opacity-50" />
+                    <p className="text-sm font-medium mb-1">No API keys configured</p>
+                    <p className="text-xs">Configure API keys in settings to select a model</p>
                   </div>
                 )}
               </div>
@@ -396,17 +389,11 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ showNavigation = false
         </>
       )}
 
-      {/* Frameworks Popup */}
+      {/* Frameworks Popup - Positioned to the right of model popup */}
       {showFrameworkPopup && (
         <>
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50"
-            onClick={() => setShowFrameworkPopup(false)}
-          />
-          
           {/* Frameworks Popup */}
-          <div className="absolute left-12 top-0 z-50 w-[70rem] max-h-[80vh] bg-background/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl animate-in slide-in-from-left-4 duration-300 overflow-hidden">
+          <div className="absolute left-[20rem] top-0 z-50 w-[65rem] max-h-[74vh] bg-background border border-border/50 rounded-2xl shadow-2xl animate-in slide-in-from-left-4 duration-300 overflow-hidden">
             <div className="p-6 h-full flex flex-col">
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
@@ -430,44 +417,44 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ showNavigation = false
                 {frameworks.map((framework) => (
                   <Card
                     key={framework.id}
-                    className={`p-4 cursor-pointer transition-all duration-300 hover:shadow-lg border-2 ${
+                    className={`p-2.5 cursor-pointer transition-all duration-300 hover:shadow-md border-2 ${
                       userPreferences?.selected_framework === framework.id
-                        ? 'border-primary bg-gradient-to-r from-primary/5 to-primary/10 shadow-lg scale-[1.02]'
-                        : 'border-border hover:border-primary/50 hover:bg-muted/30 hover:scale-[1.01]'
+                        ? 'border-primary bg-gradient-to-r from-primary/5 to-primary/10 shadow-md scale-[1.01]'
+                        : 'border-border hover:border-primary/50 hover:bg-muted/30 hover:scale-[1.005]'
                     }`}
                     onClick={() => handleFrameworkSelect(framework.id)}
                   >
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <h4 className="font-semibold text-foreground text-base">
+                        <h4 className="font-semibold text-foreground text-sm">
                           {framework.name}
                         </h4>
                         {userPreferences?.selected_framework === framework.id && (
-                          <Badge variant="default" className="bg-primary text-primary-foreground text-xs px-2 py-1">
+                          <Badge variant="default" className="bg-primary text-primary-foreground text-xs px-1.5 py-0.5">
                             Active
                           </Badge>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
+                      <p className="text-xs text-muted-foreground leading-relaxed">
                         {framework.description}
                       </p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {framework.components.slice(0, 4).map((component, index) => (
+                      <div className="flex flex-wrap gap-1">
+                        {framework.components.slice(0, 3).map((component, index) => (
                           <Badge
                             key={index}
                             variant="secondary"
-                            className="text-xs bg-muted/50 text-foreground border-border px-2 py-1"
+                            className="text-xs bg-muted/50 text-foreground border-border px-1.5 py-0.5"
                           >
                             {component}
                           </Badge>
                         ))}
-                        {framework.components.length > 4 && (
-                          <Badge variant="outline" className="text-xs px-2 py-1">
-                            +{framework.components.length - 4}
+                        {framework.components.length > 3 && (
+                          <Badge variant="outline" className="text-xs px-1.5 py-0.5">
+                            +{framework.components.length - 3}
                           </Badge>
                         )}
                       </div>
-                      <div className="pt-2 border-t border-border/50">
+                      <div className="pt-1.5 border-t border-border/50">
                         <p className="text-xs text-muted-foreground">
                           <span className="font-medium">Best for:</span> {framework.bestFor}
                         </p>

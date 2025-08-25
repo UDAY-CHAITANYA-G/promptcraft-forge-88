@@ -30,6 +30,11 @@ const ApiConfig = () => {
     gemini: '',
     anthropic: ''
   });
+  const [originalApiKeys, setOriginalApiKeys] = useState<ApiConfig>({
+    openai: '',
+    gemini: '',
+    anthropic: ''
+  });
   const [isValidating, setIsValidating] = useState(false);
   const [validationResults, setValidationResults] = useState<Partial<ApiConfig>>({});
   const [errors, setErrors] = useState<string[]>([]);
@@ -46,11 +51,40 @@ const ApiConfig = () => {
     testDatabaseConnection();
 
     // Pre-fill form with existing configs
-    setApiKeys(prev => ({
-      ...prev,
-      ...configs
-    }));
+    const initialConfigs: ApiConfig = {
+      openai: configs.openai || '',
+      gemini: configs.gemini || '',
+      anthropic: configs.anthropic || ''
+    };
+    setApiKeys(initialConfigs);
+    setOriginalApiKeys(initialConfigs);
   }, [user, navigate, configs]);
+
+  // Check if any changes have been made
+  const hasChanges = () => {
+    return Object.keys(apiKeys).some(key => {
+      const modelKey = key as keyof ApiConfig;
+      return apiKeys[modelKey] !== originalApiKeys[modelKey];
+    });
+  };
+
+  // Check if user has any verified API keys
+  const hasVerifiedApis = () => {
+    return Object.values(configs).some(key => key && key.trim() !== '');
+  };
+
+  // Check if current form has any valid API keys
+  const hasValidFormKeys = () => {
+    return Object.values(apiKeys).some(key => key && key.trim() !== '');
+  };
+
+  // Check if validation button should be enabled
+  const canValidate = () => {
+    return hasChanges() && hasValidFormKeys() && !isValidating && dbStatus?.tableExists;
+  };
+
+  // Check if user can proceed to prompt generator
+  const canProceed = hasVerifiedApis() && errors.length === 0;
 
   const testDatabaseConnection = async () => {
     try {
@@ -120,6 +154,20 @@ const ApiConfig = () => {
       const successCount = results.filter(Boolean).length;
 
       if (successCount > 0) {
+        // Update originalApiKeys to reflect the saved state
+        setOriginalApiKeys(prev => {
+          const updatedOriginalKeys = { ...prev };
+          Object.entries(validKeys).forEach(([key, value]) => {
+            if (value !== undefined) {
+              updatedOriginalKeys[key as keyof ApiConfig] = value;
+            }
+          });
+          return updatedOriginalKeys;
+        });
+        
+        // Clear validation results after successful save
+        setValidationResults({});
+        
         toast({
           title: "Success!",
           description: `${successCount} API key(s) saved successfully`,
@@ -157,8 +205,6 @@ const ApiConfig = () => {
       });
     }
   };
-
-  const canProceed = Object.values(validationResults).some(key => key) && errors.length === 0;
 
   const getModelInfo = (model: keyof ApiConfig) => {
     const modelInfo = {
@@ -368,6 +414,7 @@ const ApiConfig = () => {
                                 h-9 text-sm border-2 transition-all duration-300
                                 ${isValid ? `border-green-500/50 bg-green-500/5 focus:border-green-500 focus:ring-green-500/20` : 
                                 hasError ? 'border-red-500/50 bg-red-500/5 focus:border-red-500 focus:ring-red-500/20' : 
+                                key !== originalApiKeys[model as keyof ApiConfig] ? 'border-orange-500/50 bg-orange-500/5 focus:border-orange-500 focus:ring-orange-500/20' :
                                 `border-border/50 hover:border-primary/30 focus:border-primary focus:ring-primary/20`
                                 }
                                 focus:ring-2 focus:ring-offset-0
@@ -379,12 +426,22 @@ const ApiConfig = () => {
                                   <CheckCircle className="w-4 h-4 text-green-500" />
                                 ) : hasError ? (
                                   <AlertCircle className="w-4 h-4 text-red-500" />
+                                ) : key !== originalApiKeys[model as keyof ApiConfig] ? (
+                                  <div className="w-4 h-4 bg-orange-500 rounded-full animate-pulse"></div>
                                 ) : (
                                   <div className="w-4 h-4 border-2 border-muted-foreground/30 rounded-full"></div>
                                 )}
                               </div>
                             )}
                           </div>
+                          
+                          {/* Change Indicator */}
+                          {key !== originalApiKeys[model as keyof ApiConfig] && (
+                            <div className="flex items-center gap-1 text-xs text-orange-600">
+                              <div className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></div>
+                              <span>Modified</span>
+                            </div>
+                          )}
                         </div>
                         
                         {/* Action Buttons */}
@@ -421,38 +478,73 @@ const ApiConfig = () => {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-in slide-in-from-bottom-4 duration-700">
+              {/* Validate & Save Button - Only enabled when changes are detected */}
               <Button
                 onClick={validateAllKeys}
-                disabled={isValidating || Object.values(apiKeys).every(key => !key.trim()) || !dbStatus?.tableExists}
+                disabled={!canValidate()}
                 size="lg"
-                variant="apiPrimary"
-                className="flex-1 sm:flex-none h-12 px-8 text-base font-medium"
+                variant={hasChanges() ? "apiPrimary" : "outline"}
+                className={`flex-1 sm:flex-none h-12 px-8 text-base font-medium transition-all duration-300 ${
+                  hasChanges() 
+                    ? 'hover:shadow-lg hover:scale-105' 
+                    : 'opacity-60 cursor-not-allowed'
+                }`}
               >
                 {isValidating ? (
                   <>
                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                     Validating & Saving...
                   </>
-                ) : (
+                ) : hasChanges() ? (
                   <>
                     <Key className="w-5 h-5 mr-2" />
-                    Validate & Save API Keys
+                    Validate & Save Changes
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-5 h-5 mr-2 text-muted-foreground" />
+                    No Changes to Save
                   </>
                 )}
               </Button>
               
+              {/* Continue to Prompt Generator Button - Only shown when APIs are verified */}
               {canProceed && (
                 <Button
                   onClick={() => navigate('/prompt-generator')}
                   variant="apiSecondary"
                   size="lg"
-                  className="flex-1 sm:flex-none h-12 px-8 text-base font-medium"
+                  className="flex-1 sm:flex-none h-12 px-8 text-base font-medium hover:shadow-lg hover:scale-105 transition-all duration-300"
                 >
                   <Zap className="w-5 h-5 mr-2" />
                   Continue to Prompt Generator
                 </Button>
               )}
             </div>
+
+            {/* Change Detection Indicator */}
+            {hasChanges() && (
+              <div className="text-center animate-in slide-in-from-bottom-4 duration-500">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-sm text-primary">
+                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                  <span className="font-medium">Changes detected</span>
+                  <span className="text-primary/70">•</span>
+                  <span className="text-primary/70">Click "Validate & Save Changes" to apply</span>
+                </div>
+              </div>
+            )}
+
+            {/* No Changes Indicator */}
+            {!hasChanges() && hasVerifiedApis() && (
+              <div className="text-center animate-in slide-in-from-bottom-4 duration-500">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full text-sm text-green-600">
+                  <CheckCircle className="w-4 h-4" />
+                  <span className="font-medium">All APIs are up to date</span>
+                  <span className="text-green-500/70">•</span>
+                  <span className="text-green-500/70">Ready to generate prompts</span>
+                </div>
+              </div>
+            )}
 
             {/* Help Section */}
             <div className="text-center space-y-4 animate-in slide-in-from-bottom-4 duration-700 pb-8">
