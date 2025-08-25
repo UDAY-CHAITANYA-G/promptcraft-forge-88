@@ -2,12 +2,28 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Building2, Sparkles, Github, Twitter, Linkedin, Mail, Heart, ArrowUp } from "lucide-react"
 import { Link } from "react-router-dom"
+import { useState } from "react"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 
 export function Footer() {
   const currentYear = new Date().getFullYear()
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const [feedback, setFeedback] = useState({
+    name: '',
+    email: '',
+    message: '',
+  })
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const mailtoLink = `mailto:zeroxchaitanya@gmail.com?subject=PromptForge Feedback&body=Name: ${feedback.name}\nEmail: ${feedback.email}\nMessage: ${feedback.message}`
+    window.open(mailtoLink, '_blank')
+    alert('Thank you for your feedback!')
   }
 
   return (
@@ -115,17 +131,42 @@ export function Footer() {
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-foreground">Stay Updated</h4>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300"
+            <h4 className="text-lg font-semibold text-foreground">Provide Feedback</h4>
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Input
+                  type="text"
+                  placeholder="Your Name"
+                  value={feedback.name}
+                  onChange={(e) => setFeedback({ ...feedback, name: e.target.value })}
+                  required
+                  className="col-span-1"
+                />
+                <Input
+                  type="email"
+                  placeholder="Your Email"
+                  value={feedback.email}
+                  onChange={(e) => setFeedback({ ...feedback, email: e.target.value })}
+                  required
+                  className="col-span-1"
+                />
+              </div>
+              <Textarea
+                placeholder="Your Feedback"
+                value={feedback.message}
+                onChange={(e) => setFeedback({ ...feedback, message: e.target.value })}
+                required
+                className="min-h-[100px]"
               />
-              <Button size="sm" className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground">
-                Subscribe
+              <Button
+                type="submit"
+                size="sm"
+                className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground"
+              >
+                <Mail className="w-4 h-4 mr-2" />
+                Send Feedback
               </Button>
-            </div>
+            </form>
           </div>
         </div>
 

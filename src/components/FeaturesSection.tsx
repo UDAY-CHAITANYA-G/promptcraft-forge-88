@@ -59,8 +59,8 @@ const features = [
     icon: Users,
     title: "Team Collaboration",
     description: "Share frameworks and prompts with your team. Build a library of effective AI prompts together.",
-    action: "Coming Soon",
-    link: "/",
+    action: "Provide Feedback",
+    link: "mailto:zeroxchaitanya@gmail.com?subject=Team Collaboration Feature Feedback&body=Hi, I'm interested in the Team Collaboration feature. Here's my feedback:",
     gradient: "from-indigo-500 to-purple-500",
     bgGradient: "from-indigo-500/10 to-purple-500/10",
     borderGradient: "from-indigo-500/20 to-purple-500/20"
@@ -179,10 +179,17 @@ export function FeaturesSection() {
                     variant="outline" 
                     className={`w-full group-hover:bg-gradient-to-r ${feature.gradient} group-hover:text-white group-hover:border-transparent transition-all duration-300`}
                   >
-                    <Link to={feature.link} className="flex items-center justify-center gap-2">
-                      {feature.action}
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-                    </Link>
+                    {feature.link.startsWith('mailto:') ? (
+                      <a href={feature.link} className="flex items-center justify-center gap-2">
+                        {feature.action}
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                      </a>
+                    ) : (
+                      <Link to={feature.link} className="flex items-center justify-center gap-2">
+                        {feature.action}
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                      </Link>
+                    )}
                   </Button>
                 </CardContent>
               </Card>
