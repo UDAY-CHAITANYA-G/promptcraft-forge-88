@@ -4,13 +4,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle, AlertCircle, Key, Bot, Loader2, Database } from 'lucide-react';
+import { CheckCircle, AlertCircle, Key, Bot, Loader2, Database, Sparkles, Shield, Zap, Globe, Building2, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useApiConfig } from '@/hooks/useApiConfig';
 import { useToast } from '@/hooks/use-toast';
 import { apiConfigService } from '@/lib/apiConfigService';
 import { LeftSidebar } from '@/components/LeftSidebar';
+import { Navbar } from '@/components/Navbar';
 
 interface ApiConfig {
   openai: string;
@@ -161,186 +162,334 @@ const ApiConfig = () => {
 
   const getModelInfo = (model: keyof ApiConfig) => {
     const modelInfo = {
-      openai: { name: 'ChatGPT', description: 'OpenAI GPT models (GPT-4, GPT-3.5)', icon: Bot },
-      gemini: { name: 'Gemini', description: 'Google Gemini models (Flash, Pro)', icon: Bot },
-      anthropic: { name: 'Claude', description: 'Anthropic Claude models', icon: Bot }
+      openai: { 
+        name: 'ChatGPT', 
+        description: 'OpenAI GPT models (GPT-4, GPT-3.5)', 
+        icon: Bot,
+        color: 'from-emerald-500 to-teal-500',
+        bgColor: 'bg-emerald-500/10',
+        borderColor: 'border-emerald-500/20',
+        ringColor: 'ring-emerald-500/30'
+      },
+      gemini: { 
+        name: 'Gemini', 
+        description: 'Google Gemini models (Flash, Pro)', 
+        icon: Sparkles,
+        color: 'from-blue-500 to-indigo-500',
+        bgColor: 'bg-blue-500/10',
+        borderColor: 'border-blue-500/20',
+        ringColor: 'ring-blue-500/30'
+      },
+      anthropic: { 
+        name: 'Claude', 
+        description: 'Anthropic Claude models', 
+        icon: Zap,
+        color: 'from-purple-500 to-pink-500',
+        bgColor: 'bg-purple-500/10',
+        borderColor: 'border-purple-500/20',
+        ringColor: 'ring-purple-500/30'
+      }
     };
     return modelInfo[model];
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-6 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
-          <p className="text-muted-foreground">Loading your API configurations...</p>
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30 flex items-center justify-center">
+        <div className="text-center space-y-6">
+          <div className="relative">
+            <div className="w-16 h-16 bg-gradient-to-r from-primary to-accent rounded-full animate-pulse-glow mx-auto"></div>
+            <Loader2 className="w-8 h-8 animate-spin absolute inset-0 m-auto text-primary-foreground" />
+          </div>
+          <div className="space-y-2">
+            <p className="text-xl font-semibold text-foreground">Loading your AI configurations...</p>
+            <p className="text-muted-foreground">Preparing your personalized AI experience</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-6">
-      <LeftSidebar />
-      <div className="max-w-4xl mx-auto">
-        {/* Database Status Alert */}
-        {dbStatus && (!dbStatus.connected || !dbStatus.tableExists) && (
-          <Alert className="border-red-500 bg-red-50 mb-6">
-            <Database className="h-4 w-4 text-red-600" />
-            <AlertDescription className="text-red-800">
-              <strong>Database Issue:</strong> {dbStatus.error || 'Unable to connect to database'}
-              <br />
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="mt-2"
-                onClick={testDatabaseConnection}
-              >
-                Retry Connection
-              </Button>
-            </AlertDescription>
-          </Alert>
-        )}
-
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-gradient mb-4">
-            Configure Your AI Models
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Add your API keys to unlock the power of multiple AI models. Your keys are stored securely and encrypted.
-          </p>
-        </div>
-
-        <div className="grid gap-6 mb-8">
-          {Object.entries(apiKeys).map(([model, key]) => {
-            const info = getModelInfo(model as keyof ApiConfig);
-            const Icon = info.icon;
-            const isValid = validationResults[model as keyof ApiConfig];
-            const hasError = errors.some(error => error.includes(model));
-            const isSaved = configs[model as keyof ApiConfig];
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
+      <Navbar />
+      <div className="pt-20">
+        <LeftSidebar showNavigation={false} />
+        
+        {/* Main Content */}
+        <div className="ml-64 p-6">
+          <div className="max-w-6xl mx-auto space-y-6">
             
-            return (
-              <Card key={model} className={`transition-all duration-200 ${
-                isValid ? 'ring-2 ring-green-500/20 bg-green-50/50' : 
-                hasError ? 'ring-2 ring-red-500/20 bg-red-50/50' : 
-                isSaved ? 'ring-2 ring-blue-500/20 bg-blue-50/50' : ''
-              }`}>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    <Icon className="w-6 h-6 text-primary" />
-                    {info.name}
-                    {isSaved && (
-                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                        Saved
-                      </span>
-                    )}
-                  </CardTitle>
-                  <CardDescription>{info.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="space-y-2">
-                      <Label htmlFor={model} className="flex items-center gap-2">
-                        <Key className="w-4 h-4" />
-                        API Key
-                      </Label>
-                      <Input
-                        id={model}
-                        type="password"
-                        placeholder={`Enter your ${info.name} API key`}
-                        value={key}
-                        onChange={(e) => handleApiKeyChange(model as keyof ApiConfig, e.target.value)}
-                        className={isValid ? 'border-green-500' : hasError ? 'border-red-500' : ''}
-                      />
-                    </div>
-                    
-                    {isValid && (
-                      <Alert className="border-green-500 bg-green-50">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        <AlertDescription className="text-green-800">
-                          Valid API key format
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                    
-                    {hasError && (
-                      <Alert className="border-red-500 bg-red-50">
-                        <AlertCircle className="h-4 w-4 text-red-600" />
-                        <AlertDescription className="text-red-800">
-                          Invalid API key format
-                        </AlertDescription>
-                      </Alert>
-                    )}
-
-                    {isSaved && (
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={() => removeApiKey(model as keyof ApiConfig)}
-                          variant="outline"
-                          size="sm"
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          Remove Key
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        {errors.length > 0 && (
-          <Alert className="border-red-500 bg-red-50 mb-6">
-            <AlertCircle className="h-4 w-4 text-red-600" />
-            <AlertDescription className="text-red-800">
-              Please fix the following errors: {errors.join(', ')}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button
-            onClick={validateAllKeys}
-            disabled={isValidating || Object.values(apiKeys).every(key => !key.trim()) || !dbStatus?.tableExists}
-            size="lg"
-            className="flex-1 sm:flex-none"
-          >
-            {isValidating ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Validating & Saving...
-              </>
-            ) : (
-              'Validate & Save API Keys'
+            {/* Database Status Alert */}
+            {dbStatus && (!dbStatus.connected || !dbStatus.tableExists) && (
+              <div className="animate-in slide-in-from-top-4 duration-500">
+                <Alert className="border-red-500/50 bg-red-500/5 backdrop-blur-sm">
+                  <Database className="h-4 w-4 text-red-500" />
+                  <AlertDescription className="text-red-600 text-sm">
+                    <span className="font-semibold">Database Connection Issue:</span> {dbStatus.error || 'Unable to connect to database'}
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="ml-2 mt-1 border-red-500/30 text-red-600 hover:bg-red-500/10 text-xs h-6 px-2"
+                      onClick={testDatabaseConnection}
+                    >
+                      Retry Connection
+                    </Button>
+                  </AlertDescription>
+                </Alert>
+              </div>
             )}
-          </Button>
-          
-          {canProceed && (
-            <Button
-              onClick={() => navigate('/prompt-generator')}
-              variant="hero"
-              size="lg"
-              className="flex-1 sm:flex-none"
-            >
-              Continue to Prompt Generator
-            </Button>
-          )}
-        </div>
 
-        <div className="text-center mt-8 text-sm text-muted-foreground">
-          <p>Don't have API keys? Get them from:</p>
-          <div className="flex flex-wrap justify-center gap-4 mt-2">
-            <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-              OpenAI Platform
-            </a>
-            <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-              Google AI Studio
-            </a>
-            <a href="https://console.anthropic.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-              Anthropic Console
-            </a>
+            {/* Hero Section */}
+            <div className="text-center space-y-4 animate-in slide-in-from-top-4 duration-700">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 blur-2xl rounded-full"></div>
+                <div className="relative">
+                  <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                    Configure Your AI Models
+                  </h1>
+                </div>
+              </div>
+              
+              {/* Company Branding with Home Icon */}
+              <div className="flex items-center justify-center gap-2 text-base text-muted-foreground">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 hover:bg-muted/50 rounded-full"
+                  onClick={() => navigate('/')}
+                  title="Go to Home"
+                >
+                  <Home className="h-4 w-4" />
+                </Button>
+                <Building2 className="w-4 h-4" />
+                <span className="font-medium">ZeroXTech | Chaitanya</span>
+              </div>
+              
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                Unlock the power of multiple AI models by adding your API keys. 
+                Your keys are stored securely and encrypted for your privacy.
+              </p>
+              <div className="flex items-center justify-center gap-3 text-sm text-muted-foreground">
+                <Shield className="w-4 h-4" />
+                <span>Enterprise-grade security</span>
+                <span>•</span>
+                <Globe className="w-4 h-4" />
+                <span>Multiple AI providers</span>
+              </div>
+            </div>
+
+            {/* API Key Cards */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {Object.entries(apiKeys).map(([model, key], index) => {
+                const info = getModelInfo(model as keyof ApiConfig);
+                const Icon = info.icon;
+                const isValid = validationResults[model as keyof ApiConfig];
+                const hasError = errors.some(error => error.includes(model));
+                const isSaved = configs[model as keyof ApiConfig];
+                
+                return (
+                  <div 
+                    key={model} 
+                    className="animate-in slide-in-from-left-4 duration-500"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    <Card className={`
+                      group relative overflow-hidden transition-all duration-500 hover:scale-[1.02] hover:shadow-lg h-full
+                      ${isValid ? `ring-2 ${info.ringColor} bg-gradient-to-r ${info.bgColor} to-transparent` : 
+                      hasError ? 'ring-2 ring-red-500/30 bg-red-500/5' : 
+                      isSaved ? `ring-2 ${info.ringColor} bg-gradient-to-r ${info.bgColor} to-transparent` : 
+                      'hover:ring-2 hover:ring-primary/20 hover:bg-card-hover/50'
+                      }
+                      border-0 shadow-md hover:shadow-xl
+                    `}>
+                      {/* Background Pattern */}
+                      <div className="absolute inset-0 opacity-5">
+                        <div className={`absolute top-0 right-0 w-16 h-16 bg-gradient-to-br ${info.color} rounded-full blur-xl`}></div>
+                        <div className={`absolute bottom-0 left-0 w-12 h-12 bg-gradient-to-tl ${info.color} rounded-full blur-lg opacity-20`}></div>
+                      </div>
+                      
+                      <CardHeader className="relative pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className={`
+                              p-2 rounded-lg bg-gradient-to-r ${info.color} shadow-lg
+                              group-hover:scale-110 transition-transform duration-300
+                            `}>
+                              <Icon className="w-4 h-4 text-white" />
+                            </div>
+                            <div>
+                              <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+                                {info.name}
+                                {isSaved && (
+                                  <span className="text-xs bg-green-500/20 text-green-600 px-2 py-1 rounded-full font-medium border border-green-500/30">
+                                    ✓ Saved
+                                  </span>
+                                )}
+                              </CardTitle>
+                              <CardDescription className="text-muted-foreground text-sm mt-1">
+                                {info.description}
+                              </CardDescription>
+                            </div>
+                          </div>
+                          
+                          {/* Status Indicator */}
+                          <div className="flex items-center gap-1">
+                            {isValid && (
+                              <div className="flex items-center gap-1 text-green-600 bg-green-500/10 px-2 py-1 rounded-full border border-green-500/20 animate-in scale-in duration-300">
+                                <CheckCircle className="w-3 h-3" />
+                                <span className="text-xs font-medium">Valid</span>
+                              </div>
+                            )}
+                            {hasError && (
+                              <div className="flex items-center gap-1 text-red-600 bg-red-500/10 px-2 py-1 rounded-full border border-red-500/20 animate-in scale-in duration-300">
+                                <AlertCircle className="w-3 h-3" />
+                                <span className="text-xs font-medium">Invalid</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </CardHeader>
+                      
+                      <CardContent className="relative space-y-3">
+                        <div className="space-y-2">
+                          <Label htmlFor={model} className="flex items-center gap-2 text-sm font-medium text-foreground">
+                            <Key className="w-4 h-4 text-primary" />
+                            API Key
+                          </Label>
+                          <div className="relative">
+                            <Input
+                              id={model}
+                              type="password"
+                              placeholder={`Enter your ${info.name} API key`}
+                              value={key}
+                              onChange={(e) => handleApiKeyChange(model as keyof ApiConfig, e.target.value)}
+                              className={`
+                                h-9 text-sm border-2 transition-all duration-300
+                                ${isValid ? `border-green-500/50 bg-green-500/5 focus:border-green-500 focus:ring-green-500/20` : 
+                                hasError ? 'border-red-500/50 bg-red-500/5 focus:border-red-500 focus:ring-red-500/20' : 
+                                `border-border/50 hover:border-primary/30 focus:border-primary focus:ring-primary/20`
+                                }
+                                focus:ring-2 focus:ring-offset-0
+                              `}
+                            />
+                            {key && (
+                              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                {isValid ? (
+                                  <CheckCircle className="w-4 h-4 text-green-500" />
+                                ) : hasError ? (
+                                  <AlertCircle className="w-4 h-4 text-red-500" />
+                                ) : (
+                                  <div className="w-4 h-4 border-2 border-muted-foreground/30 rounded-full"></div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Action Buttons */}
+                        <div className="flex gap-2">
+                          {isSaved && (
+                            <Button
+                              onClick={() => removeApiKey(model as keyof ApiConfig)}
+                              variant="outline"
+                              size="sm"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-500/10 border-red-500/30 transition-all duration-300 text-sm h-8 px-3"
+                            >
+                              Remove Key
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Error Summary */}
+            {errors.length > 0 && (
+              <div className="animate-in slide-in-from-bottom-4 duration-500">
+                <Alert className="border-red-500/50 bg-red-500/5 backdrop-blur-sm">
+                  <AlertCircle className="h-4 w-4 text-red-500" />
+                  <AlertDescription className="text-red-600 text-sm">
+                    <span className="font-semibold">Please fix the following errors:</span> {errors.join(', ')}
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-in slide-in-from-bottom-4 duration-700">
+              <Button
+                onClick={validateAllKeys}
+                disabled={isValidating || Object.values(apiKeys).every(key => !key.trim()) || !dbStatus?.tableExists}
+                size="lg"
+                variant="apiPrimary"
+                className="flex-1 sm:flex-none h-12 px-8 text-base font-medium"
+              >
+                {isValidating ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Validating & Saving...
+                  </>
+                ) : (
+                  <>
+                    <Key className="w-5 h-5 mr-2" />
+                    Validate & Save API Keys
+                  </>
+                )}
+              </Button>
+              
+              {canProceed && (
+                <Button
+                  onClick={() => navigate('/prompt-generator')}
+                  variant="apiSecondary"
+                  size="lg"
+                  className="flex-1 sm:flex-none h-12 px-8 text-base font-medium"
+                >
+                  <Zap className="w-5 h-5 mr-2" />
+                  Continue to Prompt Generator
+                </Button>
+              )}
+            </div>
+
+            {/* Help Section */}
+            <div className="text-center space-y-4 animate-in slide-in-from-bottom-4 duration-700 pb-8">
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold text-foreground">Need API Keys?</h3>
+                <p className="text-muted-foreground text-base">Get your API keys from these official platforms:</p>
+              </div>
+              <div className="flex flex-wrap justify-center gap-4">
+                <a 
+                  href="https://platform.openai.com/api-keys" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="group flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 rounded-lg hover:from-emerald-500/20 hover:to-teal-500/20 hover:border-emerald-500/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md"
+                >
+                  <Bot className="w-4 h-4 text-emerald-500 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium text-foreground">OpenAI Platform</span>
+                </a>
+                <a 
+                  href="https://makersuite.google.com/app/apikey" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="group flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-500/20 rounded-lg hover:from-blue-500/20 hover:to-indigo-500/20 hover:border-blue-500/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md"
+                >
+                  <Sparkles className="w-4 h-4 text-blue-500 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium text-foreground">Google AI Studio</span>
+                </a>
+                <a 
+                  href="https://console.anthropic.com/" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="group flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-lg hover:from-purple-500/20 hover:to-indigo-500/20 hover:border-purple-500/30 transition-all duration-300 transform hover:scale-105 hover:shadow-md"
+                >
+                  <Zap className="w-4 h-4 text-purple-500 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium text-foreground">Anthropic Console</span>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>

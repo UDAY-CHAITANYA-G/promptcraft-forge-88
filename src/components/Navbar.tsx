@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/hooks/useAuth'
 import { Link } from 'react-router-dom'
-import { LogOut, User, Key, Sparkles } from 'lucide-react'
+import { LogOut, User, Building2 } from 'lucide-react'
 
 export function Navbar() {
   const { user, signOut } = useAuth()
@@ -17,70 +17,69 @@ export function Navbar() {
     return email.charAt(0).toUpperCase()
   }
 
+  const getFullName = (email: string) => {
+    // Extract name from email (part before @) and capitalize first letter
+    const namePart = email.split('@')[0]
+    return namePart.charAt(0).toUpperCase() + namePart.slice(1)
+  }
+
   return (
-    <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-lg">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2">
-            <h1 className="text-2xl font-bold text-gradient">PromptForge</h1>
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-gradient">PromptForge</h1>
+              <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground border-l border-border/50 pl-3">
+                <Building2 className="w-4 h-4" />
+                <span className="font-medium">ZeroXTech</span>
+                <span className="text-xs opacity-70">|</span>
+                <span className="text-xs opacity-70">Chaitanya</span>
+              </div>
+            </div>
           </Link>
           
           <div className="flex items-center space-x-4">
-            {/* Navigation Links */}
-            <div className="hidden md:flex items-center space-x-4">
-              <Link 
-                to="/api-config" 
-                className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Key className="w-4 h-4" />
-                API Config
-              </Link>
-              <Link 
-                to="/prompt-generator" 
-                className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Sparkles className="w-4 h-4" />
-                Prompt Generator
-              </Link>
-            </div>
-            
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                    <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-primary/10 text-primary">
-                        {getInitials(user.email || 'U')}
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        {getInitials(user.email)}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <div className="flex flex-col space-y-1 p-2">
-                    <p className="text-sm font-medium leading-none">{user.email}</p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      Welcome to PromptForge
-                    </p>
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <div className="flex flex-col space-y-1 leading-none">
+                      <p className="font-medium text-sm">{getFullName(user.email)}</p>
+                      <p className="w-[200px] truncate text-xs text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="cursor-pointer">
-                    <User className="mr-2 h-4 w-4" />
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem 
-                    className="cursor-pointer text-destructive focus:text-destructive"
-                    onClick={handleSignOut}
-                  >
+                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
-                    Sign out
+                    <span>Sign out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button asChild>
-                <Link to="/auth">Sign In</Link>
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Link to="/auth">
+                  <Button variant="outline" size="sm">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link to="/auth">
+                  <Button size="sm">
+                    Get Started
+                  </Button>
+                </Link>
+              </div>
             )}
           </div>
         </div>

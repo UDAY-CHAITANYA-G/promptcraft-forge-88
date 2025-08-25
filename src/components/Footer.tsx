@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge"
+import { Building2, Heart } from "lucide-react"
 
 export function Footer() {
   return (
@@ -11,6 +12,10 @@ export function Footer() {
               <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary-glow text-xs">
                 Beta
               </Badge>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Building2 className="w-4 h-4" />
+              <span className="font-medium">ZeroXTech | Chaitanya</span>
             </div>
             <p className="text-muted-foreground">
               Intelligent prompt engineering for the modern AI era.
@@ -28,35 +33,42 @@ export function Footer() {
           </div>
           
           <div className="space-y-4">
-            <h4 className="font-semibold text-foreground">AI Models</h4>
+            <h4 className="font-semibold text-foreground">Company</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-primary transition-smooth">ChatGPT</a></li>
-              <li><a href="#" className="hover:text-primary transition-smooth">Gemini Flash</a></li>
-              <li><a href="#" className="hover:text-primary transition-smooth">Gemini Pro</a></li>
-              <li><a href="#" className="hover:text-primary transition-smooth">Coming Soon</a></li>
+              <li><a href="#" className="hover:text-primary transition-smooth">About ZeroXTech</a></li>
+              <li><a href="#" className="hover:text-primary transition-smooth">Our Mission</a></li>
+              <li><a href="#" className="hover:text-primary transition-smooth">Contact Us</a></li>
+              <li><a href="#" className="hover:text-primary transition-smooth">Careers</a></li>
             </ul>
           </div>
           
           <div className="space-y-4">
-            <h4 className="font-semibold text-foreground">Resources</h4>
+            <h4 className="font-semibold text-foreground">Support</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><a href="#" className="hover:text-primary transition-smooth">Documentation</a></li>
               <li><a href="#" className="hover:text-primary transition-smooth">API Reference</a></li>
-              <li><a href="#" className="hover:text-primary transition-smooth">Best Practices</a></li>
+              <li><a href="#" className="hover:text-primary transition-smooth">Help Center</a></li>
               <li><a href="#" className="hover:text-primary transition-smooth">Community</a></li>
             </ul>
           </div>
         </div>
         
-        <div className="mt-12 pt-8 border-t border-border/50 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">
-            © 2025 PromptForge. Built with intelligent AI assistance.
-          </p>
-          <div className="flex items-center gap-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-primary transition-smooth">Privacy</a>
-            <a href="#" className="hover:text-primary transition-smooth">Terms</a>
-            <a href="#" className="hover:text-primary transition-smooth">Security</a>
+        <div className="border-t border-border/50 mt-8 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span>© 2024 ZeroXTech | Chaitanya. All rights reserved.</span>
           </div>
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <a href="#" className="hover:text-primary transition-smooth">Privacy Policy</a>
+            <a href="#" className="hover:text-primary transition-smooth">Terms of Service</a>
+            <a href="#" className="hover:text-primary transition-smooth">Cookie Policy</a>
+          </div>
+        </div>
+        
+        <div className="text-center mt-6 pt-6 border-t border-border/30">
+          <p className="text-xs text-muted-foreground flex items-center justify-center gap-2">
+            Made with <Heart className="w-3 h-3 text-red-500" /> by 
+            <span className="font-medium text-primary">ZeroXTech | Chaitanya</span>
+          </p>
         </div>
       </div>
     </footer>

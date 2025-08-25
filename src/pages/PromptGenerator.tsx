@@ -7,12 +7,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Copy, Sparkles, Bot, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
+import { Copy, Sparkles, Bot, CheckCircle, Loader2, AlertCircle, Building2, Settings, Home, Key, History } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useApiConfig } from '@/hooks/useApiConfig';
 import { LeftSidebar } from '@/components/LeftSidebar';
+import { Navbar } from '@/components/Navbar';
 import { userPreferencesService, frameworks } from '@/lib/userPreferencesService';
 import { useMCP } from '@/hooks/useMCP';
 import { getMasterPrompt } from '@/lib/masterPromptConfig';
@@ -49,6 +50,7 @@ const PromptGenerator = () => {
   const [copied, setCopied] = useState(false);
   const [activeModel, setActiveModel] = useState<string>('');
   const [generationTimestamp, setGenerationTimestamp] = useState<Date | null>(null);
+  const [showMobileMenu, setShowMobileMenu] = useState(false); // Mobile menu state
   
   const { isGenerating, lastResponse, generatePrompt: mcpGeneratePrompt, clearResponse } = useMCP();
 
@@ -362,222 +364,291 @@ const PromptGenerator = () => {
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-background to-muted/20 flex flex-col pt-4 pb-4">
-      {/* Header */}
-      <div className="text-center py-4 flex-shrink-0">
-        <h1 className="text-2xl md:text-3xl font-bold text-gradient mb-2">
-          AI Prompt Generator
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Generate structured prompts using proven frameworks
-        </p>
-      </div>
-
-      <div className="flex-1 px-6">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
+      <Navbar />
+      <div className="pt-8">
+        
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full max-w-7xl mx-auto">
-          {/* Left Side - Task Input */}
-          <div className="relative h-full">
-            <Card className="h-full">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Bot className="w-5 h-5" />
-                  Task Description
-                  {userPreferences?.vibe_coding && (
-                    <Badge variant="secondary" className="text-xs bg-primary/10 text-primary border-primary/20">
-                      Vibe Coding Enabled
-                    </Badge>
-                  )}
-                </CardTitle>
-                <CardDescription>
-                  {userPreferences?.vibe_coding 
-                    ? "Describe your task in detail for simplified AI prompt generation"
-                    : "Describe your task in detail for the AI prompt"
-                  }
-                </CardDescription>
-                {/* Active Model and Framework Tags */}
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {activeModel && (
-                    <Badge variant="outline" className="text-xs">
-                      Model: {activeModel.toUpperCase()}
-                    </Badge>
-                  )}
-                  {selectedFramework && (
-                    <Badge variant="outline" className="text-xs">
-                      Framework: {selectedFramework.name}
-                    </Badge>
-                  )}
-                </div>
-              </CardHeader>
-              
-              <CardContent className="flex-1 flex flex-col space-y-3">
-                <div className="flex-1 flex flex-col min-h-0">
-                  <Label htmlFor="taskDescription" className="text-sm mb-1">Task Details *</Label>
-                  <Textarea
-                    id="taskDescription"
-                    placeholder="Describe your task in detail. Include what you want the AI to do, any specific requirements, context, examples, or constraints..."
-                    value={taskInfo.taskDescription}
-                    onChange={(e) => handleInputChange('taskDescription', e.target.value)}
-                    className="flex-1 resize-none min-h-0 text-base leading-relaxed"
-                    style={{ 
-                      minHeight: userPreferences?.vibe_coding ? '500px' : '450px' 
-                    }}
-                  />
-                  {userPreferences?.vibe_coding && (
-                    <p className="text-xs text-muted-foreground mt-2">
-                      💡 Vibe coding mode: Tone and length preferences are automatically optimized for your task.
-                    </p>
-                  )}
-                </div>
-                
-                {!userPreferences?.vibe_coding && (
-                  <div className="grid grid-cols-2 gap-3 flex-shrink-0">
-                    <div className="space-y-1">
-                      <Label htmlFor="tone" className="text-sm">Tone</Label>
-                      <Select value={taskInfo.tone} onValueChange={(value) => handleInputChange('tone', value)}>
-                        <SelectTrigger className="h-9">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="professional">Professional</SelectItem>
-                          <SelectItem value="casual">Casual</SelectItem>
-                          <SelectItem value="friendly">Friendly</SelectItem>
-                          <SelectItem value="formal">Formal</SelectItem>
-                          <SelectItem value="creative">Creative</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="space-y-1">
-                      <Label htmlFor="length" className="text-sm">Length</Label>
-                      <Select value={taskInfo.length} onValueChange={(value) => handleInputChange('length', value)}>
-                        <SelectTrigger className="h-9">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="short">Short</SelectItem>
-                          <SelectItem value="medium">Medium</SelectItem>
-                          <SelectItem value="long">Long</SelectItem>
-                          <SelectItem value="detailed">Detailed</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                )}
-                
-                <Button
-                  onClick={generatePrompt}
-                  disabled={!taskInfo.taskDescription.trim() || isGenerating}
-                  className="w-full h-10 text-sm"
-                  size="default"
-                >
-                  {isGenerating ? 'Generating...' : 'Generate Prompt'}
-                </Button>
-              </CardContent>
-            </Card>
+        <div className="p-6">
+          {/* Header */}
+          <div className="text-center py-4 flex-shrink-0">
+            <h1 className="text-2xl md:text-3xl font-bold text-gradient mb-2">
+              AI Prompt Generator
+            </h1>
             
-            {/* Menu Icon positioned next to the Task Information box */}
-            <LeftSidebar />
+            {/* Company Branding */}
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-2">
+              <Building2 className="w-4 h-4" />
+              <span className="font-medium">ZeroXTech | Chaitanya</span>
+            </div>
+            
+            <p className="text-sm text-muted-foreground">
+              Generate structured prompts using proven frameworks
+            </p>
           </div>
 
-          {/* Right Side - Generated Prompt */}
-          <Card className="h-full flex flex-col">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Sparkles className="w-5 h-5" />
-                Generated Prompt
-              </CardTitle>
-              <CardDescription>
-                Your structured prompt based on the {selectedFramework?.name} framework
-                {userPreferences?.vibe_coding && (
-                  <span className="text-primary"> • Vibe coding optimized</span>
-                )}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 flex flex-col p-6">
-              {generatedPrompt ? (
-                <div className="flex-1 flex flex-col space-y-4">
-                  {/* Generated Prompt Display */}
-                  <div className="bg-muted/50 rounded-lg border flex-1 flex flex-col">
-                    <div className="p-4 flex-1">
-                      <div className="mb-3">
-                        <Badge variant="outline" className="text-xs">
-                          AI Generated Prompt
-                        </Badge>
+          <div className="px-6">
+            {/* Main Content */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full max-w-7xl mx-auto">
+              {/* Left Side - Task Input with Menu */}
+              <div className="relative h-full">
+                {/* Menu positioned to the left of the task card - hidden on small screens */}
+                <div className="absolute -left-16 top-0 z-10 hidden lg:block">
+                  <LeftSidebar showNavigation={true} />
+                </div>
+                
+                <Card className="h-full">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Bot className="w-5 h-5" />
+                        <span className="text-lg font-semibold">Task Description</span>
+                        {userPreferences?.vibe_coding && (
+                          <Badge variant="secondary" className="text-xs bg-primary/10 text-primary border-primary/20">
+                            Vibe Coding Enabled
+                          </Badge>
+                        )}
                       </div>
-                      <pre className="whitespace-pre-wrap text-sm font-mono flex-1 leading-relaxed">{generatedPrompt}</pre>
+                      
+                      {/* Mobile Menu Button - visible only on small screens */}
+                      <div className="lg:hidden">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          onClick={() => setShowMobileMenu(!showMobileMenu)}
+                          title="Menu"
+                        >
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                     
-                    {/* Footer with Timestamp and Details Tags */}
-                    {lastResponse && (
-                      <div className="px-4 py-3 bg-muted/30 border-t border-muted/50">
-                        <div className="flex flex-wrap gap-2 justify-end">
-                          <Badge variant="outline" className="text-xs">
-                            {generationTimestamp ? generationTimestamp.toLocaleString() : 'Just now'}
-                          </Badge>
-                          <Badge variant="secondary" className="text-xs">
-                            {lastResponse.model?.toUpperCase()}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {selectedFramework?.name}
-                          </Badge>
+                    <CardDescription>
+                      {userPreferences?.vibe_coding 
+                        ? "Describe your task in detail for simplified AI prompt generation"
+                        : "Describe your task in detail for the AI prompt"
+                      }
+                    </CardDescription>
+                    
+                    {/* Mobile Menu Dropdown */}
+                    {showMobileMenu && (
+                      <div className="mt-3 p-3 bg-muted/30 rounded-lg border border-border/50 animate-in slide-in-from-top-2 duration-200">
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 px-3 text-xs"
+                            onClick={() => navigate('/')}
+                          >
+                            <Home className="h-3 w-3 mr-1" />
+                            Home
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 px-3 text-xs"
+                            onClick={() => navigate('/api-config')}
+                          >
+                            <Key className="h-3 w-3 mr-1" />
+                            API Config
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 px-3 text-xs"
+                            onClick={() => setShowMobileMenu(false)}
+                          >
+                            <History className="h-3 w-3 mr-1" />
+                            History
+                          </Button>
                         </div>
                       </div>
                     )}
-                  </div>
-                  
-                  {/* Action Buttons */}
-                  <div className="flex gap-3 flex-shrink-0">
-                    <Button
-                      onClick={copyToClipboard}
-                      variant="outline"
-                      className="flex-1 h-10"
-                      size="default"
-                    >
-                      {copied ? (
-                        <>
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4 mr-2" />
-                          Copy Prompt
-                        </>
+                    
+                    {/* Active Model and Framework Tags */}
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {activeModel && (
+                        <Badge variant="outline" className="text-xs">
+                          Model: {activeModel.toUpperCase()}
+                        </Badge>
                       )}
-                    </Button>
+                      {selectedFramework && (
+                        <Badge variant="outline" className="text-xs">
+                          Framework: {selectedFramework.name}
+                        </Badge>
+                      )}
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent className="flex-1 flex flex-col space-y-3">
+                    <div className="flex-1 flex flex-col min-h-0">
+                      <Label htmlFor="taskDescription" className="text-sm mb-1">Task Details *</Label>
+                      <Textarea
+                        id="taskDescription"
+                        placeholder="Describe your task in detail. Include what you want the AI to do, any specific requirements, context, examples, or constraints..."
+                        value={taskInfo.taskDescription}
+                        onChange={(e) => handleInputChange('taskDescription', e.target.value)}
+                        className="flex-1 resize-none min-h-0 text-base leading-relaxed"
+                        style={{ 
+                          minHeight: userPreferences?.vibe_coding ? '484px' : '434px' 
+                        }}
+                      />
+                      {userPreferences?.vibe_coding && (
+                        <p className="text-xs text-muted-foreground mt-2">
+                          💡 Vibe coding mode: Tone and length preferences are automatically optimized for your task.
+                        </p>
+                      )}
+                    </div>
+                    
+                    {!userPreferences?.vibe_coding && (
+                      <div className="grid grid-cols-2 gap-3 flex-shrink-0">
+                        <div className="space-y-1">
+                          <Label htmlFor="tone" className="text-sm">Tone</Label>
+                          <Select value={taskInfo.tone} onValueChange={(value) => handleInputChange('tone', value)}>
+                            <SelectTrigger className="h-9">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="professional">Professional</SelectItem>
+                              <SelectItem value="casual">Casual</SelectItem>
+                              <SelectItem value="friendly">Friendly</SelectItem>
+                              <SelectItem value="formal">Formal</SelectItem>
+                              <SelectItem value="creative">Creative</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <Label htmlFor="length" className="text-sm">Length</Label>
+                          <Select value={taskInfo.length} onValueChange={(value) => handleInputChange('length', value)}>
+                            <SelectTrigger className="h-9">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="short">Short</SelectItem>
+                              <SelectItem value="medium">Medium</SelectItem>
+                              <SelectItem value="long">Long</SelectItem>
+                              <SelectItem value="detailed">Detailed</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    )}
                     
                     <Button
-                      onClick={() => setGeneratedPrompt('')}
-                      variant="outline"
+                      onClick={generatePrompt}
+                      disabled={!taskInfo.taskDescription.trim() || isGenerating}
+                      className="w-full h-10 text-sm"
                       size="default"
-                      className="h-10"
                     >
-                      Clear
+                      {isGenerating ? 'Generating...' : 'Generate Prompt'}
                     </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground">
-                  <Sparkles className="w-16 h-16 mb-4 opacity-50" />
-                  <p className="text-base text-center max-w-md">Fill in the task information and click "Generate Prompt" to see your structured prompt here.</p>
-                  {lastResponse && !lastResponse.success && (
-                    <div className="mt-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg w-full max-w-md">
-                      <div className="flex items-center gap-2 mb-2">
-                        <AlertCircle className="w-4 h-4 text-destructive" />
-                        <span className="text-sm font-medium text-destructive">Generation Failed</span>
+                  </CardContent>
+                </Card>
+                
+                {/* Menu Icon positioned next to the Task Information box */}
+                
+              </div>
+
+              {/* Right Side - Generated Prompt */}
+              <Card className="h-full flex flex-col">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Sparkles className="w-5 h-5" />
+                    Generated Prompt
+                  </CardTitle>
+                  <CardDescription>
+                    Your structured prompt based on the {selectedFramework?.name} framework
+                    {userPreferences?.vibe_coding && (
+                      <span className="text-primary"> • Vibe coding optimized</span>
+                    )}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1 flex flex-col p-6">
+                  {generatedPrompt ? (
+                    <div className="flex-1 flex flex-col space-y-4">
+                      {/* Generated Prompt Display */}
+                      <div className="bg-muted/50 rounded-lg border flex-1 flex flex-col">
+                        <div className="p-4 flex-1">
+                          <div className="mb-3">
+                            <Badge variant="outline" className="text-xs">
+                              AI Generated Prompt
+                            </Badge>
+                          </div>
+                          <pre className="whitespace-pre-wrap text-sm font-mono flex-1 leading-relaxed">{generatedPrompt}</pre>
+                        </div>
+                        
+                        {/* Footer with Timestamp and Details Tags */}
+                        {lastResponse && (
+                          <div className="px-4 py-3 bg-muted/30 border-t border-muted/50">
+                            <div className="flex flex-wrap gap-2 justify-end">
+                              <Badge variant="outline" className="text-xs">
+                                {generationTimestamp ? generationTimestamp.toLocaleString() : 'Just now'}
+                              </Badge>
+                              <Badge variant="secondary" className="text-xs">
+                                {lastResponse.model?.toUpperCase()}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs">
+                                {selectedFramework?.name}
+                              </Badge>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <p className="text-xs text-destructive">{lastResponse.error}</p>
+                      
+                      {/* Action Buttons */}
+                      <div className="flex gap-3 flex-shrink-0">
+                        <Button
+                          onClick={copyToClipboard}
+                          variant="outline"
+                          className="flex-1 h-10"
+                          size="default"
+                        >
+                          {copied ? (
+                            <>
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                              Copied!
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-4 h-4 mr-2" />
+                              Copy Prompt
+                            </>
+                          )}
+                        </Button>
+                        
+                        <Button
+                          onClick={() => setGeneratedPrompt('')}
+                          variant="outline"
+                          size="default"
+                          className="h-10"
+                        >
+                          Clear
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground">
+                      <Sparkles className="w-16 h-16 mb-4 opacity-50" />
+                      <p className="text-base text-center max-w-md">Fill in the task information and click "Generate Prompt" to see your structured prompt here.</p>
+                      {lastResponse && !lastResponse.success && (
+                        <div className="mt-6 p-4 bg-destructive/10 border border-destructive/20 rounded-lg w-full max-w-md">
+                          <div className="flex items-center gap-2 mb-2">
+                            <AlertCircle className="w-4 h-4 text-destructive" />
+                            <span className="text-sm font-medium text-destructive">Generation Failed</span>
+                          </div>
+                          <p className="text-xs text-destructive">{lastResponse.error}</p>
+                        </div>
+                      )}
                     </div>
                   )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       </div>
-
-
     </div>
   );
 };
