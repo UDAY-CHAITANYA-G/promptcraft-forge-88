@@ -20,7 +20,9 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         hero: "bg-gradient-primary text-primary-foreground hover:shadow-glow hover:scale-105 transition-bounce font-semibold",
         glow: "bg-gradient-primary text-primary-foreground shadow-glow hover:shadow-accent animate-pulse-glow",
-        framework: "bg-card border border-border hover:border-primary hover:bg-card-hover hover:shadow-accent transition-smooth text-left justify-start h-auto p-6"
+        framework: "bg-card border border-border hover:border-primary hover:bg-card-hover hover:shadow-accent transition-smooth text-left justify-start h-auto p-6",
+        apiPrimary: "bg-gradient-to-r from-primary to-accent text-primary-foreground hover:from-primary/90 hover:to-accent/90 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-semibold",
+        apiSecondary: "border-2 border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50 transition-all duration-300 transform hover:scale-105 font-semibold"
       },
       size: {
         default: "h-10 px-4 py-2",

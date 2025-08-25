@@ -41,6 +41,100 @@ export type Database = {
         }
         Relationships: []
       }
+      api_configurations: {
+        Row: {
+          id: string
+          user_id: string
+          provider: 'openai' | 'gemini' | 'anthropic'
+          api_key_encrypted: string
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          provider: 'openai' | 'gemini' | 'anthropic'
+          api_key_encrypted: string
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          provider?: 'openai' | 'gemini' | 'anthropic'
+          api_key_encrypted?: string
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_configurations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      prompt_history: {
+        Row: {
+          id: string
+          user_id: string
+          framework_id: string
+          framework_name: string
+          model: string
+          user_input: string
+          ai_response: string
+          tone: string | null
+          length: string | null
+          vibe_coding: boolean
+          status: 'generating' | 'completed' | 'failed'
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          framework_id: string
+          framework_name: string
+          model: string
+          user_input: string
+          ai_response: string
+          tone?: string | null
+          length?: string | null
+          vibe_coding?: boolean
+          status?: 'generating' | 'completed' | 'failed'
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          framework_id?: string
+          framework_name?: string
+          model?: string
+          user_input?: string
+          ai_response?: string
+          tone?: string | null
+          length?: string | null
+          vibe_coding?: boolean
+          status?: 'generating' | 'completed' | 'failed'
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prompt_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never

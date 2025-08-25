@@ -1,88 +1,90 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Key, Sparkles, Brain, Zap, Shield, Users } from "lucide-react"
+import { Link } from "react-router-dom"
 
 const features = [
   {
-    icon: "🧠",
-    title: "AI-Powered Generation",
-    description: "Intelligent agent assistance guides you through the prompt creation process using advanced AI algorithms.",
-    badge: "Smart"
+    icon: Key,
+    title: "Multi-Model API Support",
+    description: "Configure API keys for ChatGPT, Gemini, and Claude models. Use one, some, or all models simultaneously for maximum flexibility.",
+    action: "Configure APIs",
+    link: "/api-config"
   },
   {
-    icon: "🎯", 
-    title: "Framework-Based Approach",
-    description: "9 proven methodologies including R.O.S.E.S, A.P.E, T.A.G, and more for structured prompt engineering.",
-    badge: "Proven"
+    icon: Sparkles,
+    title: "Smart Prompt Generation",
+    description: "Generate structured prompts using 9 proven frameworks. Our AI-powered system creates optimized prompts based on your specific needs.",
+    action: "Generate Prompts",
+    link: "/prompt-generator"
   },
   {
-    icon: "🔄",
-    title: "Multi-Model Support", 
-    description: "Works seamlessly with ChatGPT, Gemini Flash, and Gemini Pro with unified optimization.",
-    badge: "Compatible"
+    icon: Brain,
+    title: "Proven Frameworks",
+    description: "Choose from R.O.S.E.S, A.P.E, T.A.G, E.R.A, R.A.C.E, R.I.S.E, C.A.R.E, C.O.A.S.T, and T.R.A.C.E frameworks.",
+    action: "Learn More",
+    link: "/"
   },
   {
-    icon: "⚡",
+    icon: Zap,
     title: "Lightning Fast",
-    description: "Generate optimized prompts in under 3 seconds with intelligent caching and preprocessing.",
-    badge: "Fast"
+    description: "Generate professional prompts in seconds. Our streamlined interface makes prompt engineering accessible to everyone.",
+    action: "Get Started",
+    link: "/api-config"
   },
   {
-    icon: "🔒",
+    icon: Shield,
     title: "Secure & Private",
-    description: "Your API keys are encrypted with AES-256 and never stored in plain text. Zero-knowledge architecture.",
-    badge: "Secure"
+    description: "Your API keys are stored locally and never shared. Enterprise-grade security for your AI interactions.",
+    action: "Learn More",
+    link: "/"
   },
   {
-    icon: "📊",
-    title: "Analytics & Insights",
-    description: "Track prompt performance, token usage, and costs across different AI models with detailed analytics.",
-    badge: "Insightful"
+    icon: Users,
+    title: "Team Collaboration",
+    description: "Share frameworks and prompts with your team. Build a library of effective AI prompts together.",
+    action: "Coming Soon",
+    link: "/"
   }
 ]
 
 export function FeaturesSection() {
   return (
-    <section className="py-20 px-6">
+    <section className="py-20 px-6 bg-background">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16 space-y-4">
           <h2 className="text-4xl md:text-5xl font-bold text-gradient">
-            Powerful Features
+            Powerful Features for AI Success
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Everything you need to create exceptional AI prompts with professional-grade tools and intelligent assistance.
+            Everything you need to create effective AI prompts and manage multiple AI models in one place.
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <Card 
-              key={index} 
-              className="group hover:shadow-accent hover:border-primary/50 transition-smooth border-border bg-card/50 backdrop-blur-sm"
-            >
-              <CardHeader className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="text-4xl group-hover:scale-110 transition-bounce">
-                    {feature.icon}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {features.map((feature, index) => {
+            const Icon = feature.icon
+            return (
+              <Card key={index} className="group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-primary/20">
+                <CardHeader className="pb-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <Icon className="w-6 h-6 text-primary" />
                   </div>
-                  <Badge 
-                    variant="outline" 
-                    className="border-primary/30 bg-primary/10 text-primary-glow"
-                  >
-                    {feature.badge}
-                  </Badge>
-                </div>
-                <CardTitle className="text-xl group-hover:text-primary transition-smooth">
-                  {feature.title}
-                </CardTitle>
-              </CardHeader>
-              
-              <CardContent>
-                <p className="text-muted-foreground leading-relaxed">
-                  {feature.description}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
+                  <CardTitle className="text-xl">{feature.title}</CardTitle>
+                  <CardDescription className="text-base leading-relaxed">
+                    {feature.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button asChild variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    <Link to={feature.link}>
+                      {feature.action}
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
       </div>
     </section>
