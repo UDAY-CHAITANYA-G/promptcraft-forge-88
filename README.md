@@ -59,6 +59,26 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+- EmailJS (for feedback form emails)
+
+## EmailJS Setup
+
+This project includes a feedback form that sends emails using EmailJS. To set it up:
+
+1. **Quick Setup:**
+   ```sh
+   npm run setup-emailjs
+   ```
+
+2. **Manual Setup:**
+   - Copy `src/lib/emailConfig.private.template.ts` to `src/lib/emailConfig.private.ts`
+   - Update the credentials in the private file with your EmailJS details
+   - The private file is automatically ignored by Git
+
+3. **Detailed Instructions:**
+   See [EMAILJS_SETUP.md](./EMAILJS_SETUP.md) for complete setup guide.
+
+**Note:** The private configuration file contains sensitive credentials and is automatically excluded from version control.
 
 ## How can I deploy this project?
 
