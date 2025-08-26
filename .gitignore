@@ -23,7 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 
-# Private configuration files
-src/lib/emailConfig.private.ts
-*.private.ts
-*.private.js
+# # Private configuration files
+# src/lib/emailConfig.private.ts
+# *.private.ts
+# *.private.js
