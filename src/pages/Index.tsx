@@ -2,6 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { HeroSection } from '@/components/HeroSection'
 import { FeaturesSection } from '@/components/FeaturesSection'
+import { ProcessFlow } from '@/components/ProcessFlow'
 import { Footer } from '@/components/Footer'
 import { Navbar } from '@/components/Navbar'
 import { LeftSidebar } from '@/components/LeftSidebar'
@@ -58,6 +59,7 @@ const Index = () => {
           isLoading={loading}
           user={user}
         />
+        <ProcessFlow />
         <FeaturesSection />
         <Footer />
       </div>

@@ -226,7 +226,9 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ showNavigation = false
           />
           
           {/* Main Settings Popup */}
-          <div className="absolute left-12 top-0 z-50 w-64 bg-background/95 border border-border/50 rounded-2xl shadow-2xl animate-in slide-in-from-left-4 duration-300">
+          <div className="absolute left
+          
+          -12 top-0 z-50 w-64 bg-background/95 border border-border/50 rounded-2xl shadow-2xl animate-in slide-in-from-left-4 duration-300">
             <div className="p-4">
               {/* Header */}
               <div className="flex items-center justify-between mb-4">
