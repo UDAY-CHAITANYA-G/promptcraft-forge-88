@@ -7,11 +7,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { Building2, Loader2, Home } from 'lucide-react'
+import { Building2, Loader2, Home, Chrome } from 'lucide-react'
 import { Navbar } from '@/components/Navbar'
 
 const Auth = () => {
-  const { user, loading, signIn, signUp } = useAuth()
+  const { user, loading, signIn, signUp, signInWithGoogle } = useAuth()
   const navigate = useNavigate()
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
@@ -48,6 +48,19 @@ const Auth = () => {
       navigate('/')
     } catch (err: any) {
       setError(err.message || 'Failed to sign in')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleGoogle = async () => {
+    setIsSubmitting(true)
+    setError('')
+    try {
+      await signInWithGoogle()
+      navigate('/')
+    } catch (err: any) {
+      setError(err.message || 'Failed to sign in with Google')
     } finally {
       setIsSubmitting(false)
     }
@@ -98,6 +111,26 @@ const Auth = () => {
                 </TabsList>
                 
                 <TabsContent value="signin" className="space-y-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleGoogle}
+                    className="w-full"
+                    disabled={isSubmitting}
+                  >
+                    <Chrome className="w-4 h-4 mr-2" />
+                    Continue with Google
+                  </Button>
+                  
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-card px-2 text-muted-foreground">Or sign in with email</span>
+                    </div>
+                  </div>
+                  
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
@@ -135,6 +168,26 @@ const Auth = () => {
                 </TabsContent>
                 
                 <TabsContent value="signup" className="space-y-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleGoogle}
+                    className="w-full"
+                    disabled={isSubmitting}
+                  >
+                    <Chrome className="w-4 h-4 mr-2" />
+                    Sign up with Google
+                  </Button>
+                  
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-card px-2 text-muted-foreground">Or sign up with email</span>
+                    </div>
+                  </div>
+                  
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">Email</Label>
                     <Input

@@ -9,6 +9,7 @@ interface AuthContextType {
   loading: boolean
   signUp: (email: string, password: string) => Promise<{ error: any }>
   signIn: (email: string, password: string) => Promise<{ error: any }>
+  signInWithGoogle: () => Promise<{ error: any }>
   signOut: () => Promise<void>
 }
 
@@ -96,6 +97,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error }
   }
 
+  const signInWithGoogle = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          skipBrowserRedirect: true,
+          redirectTo: `${window.location.origin}/`,
+        }
+      })
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Google sign-in failed",
+          description: error.message,
+        })
+        return { error }
+      }
+
+      if (data?.url) {
+        const popup = window.open(
+          data.url,
+          'supabase_google_oauth',
+          'width=520,height=640,top=' + (window.screenY + (window.outerHeight - 640) / 2) + ',left=' + (window.screenX + (window.outerWidth - 520) / 2) + ',resizable,scrollbars=yes,status=1'
+        )
+
+        // Poll for session while the popup is open
+        await new Promise<void>((resolve) => {
+          const interval = setInterval(async () => {
+            const { data: sessionData } = await supabase.auth.getSession()
+            const isClosed = !popup || popup.closed
+            if (sessionData.session || isClosed) {
+              clearInterval(interval)
+              if (!isClosed) popup?.close()
+              resolve()
+            }
+          }, 500)
+        })
+      }
+
+      return { error: null }
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Google sign-in error",
+        description: err?.message || 'Unexpected error starting Google auth',
+      })
+      return { error: err }
+    }
+  }
+
   const signOut = async () => {
     await supabase.auth.signOut()
   }
@@ -106,6 +158,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     signUp,
     signIn,
+    signInWithGoogle,
     signOut,
   }
 
