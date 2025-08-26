@@ -107,11 +107,6 @@ export function Navbar() {
             ) : (
               <div className="flex items-center space-x-2">
                 <Link to="/auth">
-                  <Button variant="outline" size="sm" className="hover:bg-primary hover:text-primary-foreground transition-all duration-300">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link to="/auth">
                   <Button size="sm" className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300">
                     Get Started
                   </Button>

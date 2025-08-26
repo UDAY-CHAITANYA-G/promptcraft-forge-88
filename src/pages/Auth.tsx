@@ -77,15 +77,6 @@ const Auth = () => {
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gradient mb-2">PromptForge</h1>
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0 hover:bg-muted/50 rounded-full"
-                onClick={() => window.location.href = '/'}
-                title="Go to Home"
-              >
-                <Home className="h-4 w-4" />
-              </Button>
               <Building2 className="w-4 h-4" />
               <span>ZeroXTech | Chaitanya</span>
             </div>

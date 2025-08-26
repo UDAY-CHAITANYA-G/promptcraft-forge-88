@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Building2, Sparkles, Github, Twitter, Linkedin, Mail, Heart, ArrowUp, Loader2 } from "lucide-react"
+import { Building2, Sparkles, Github, Linkedin, Mail, Heart, ArrowUp, Loader2 } from "lucide-react"
 import { Link } from "react-router-dom"
 import { useState } from "react"
 import { Textarea } from "@/components/ui/textarea"
@@ -156,18 +156,22 @@ export function Footer() {
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-foreground">Connect With Us</h4>
             <div className="flex items-center gap-4">
-              <Button variant="outline" size="sm" className="rounded-full w-10 h-10 p-0 hover:bg-primary hover:text-primary-foreground transition-all duration-300">
+              <a 
+                href="https://github.com/UDAY-CHAITANYA-G" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center rounded-full w-10 h-10 border border-border bg-background hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+              >
                 <Github className="w-4 h-4" />
-              </Button>
-              <Button variant="outline" size="sm" className="rounded-full w-10 h-10 p-0 hover:bg-primary hover:text-primary-foreground transition-all duration-300">
-                <Twitter className="w-4 h-4" />
-              </Button>
-              <Button variant="outline" size="sm" className="rounded-full w-10 h-10 p-0 hover:bg-primary hover:text-primary-foreground transition-all duration-300">
+              </a>
+              <a 
+                href="https://www.linkedin.com/in/udaychaitanya11/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center rounded-full w-10 h-10 border border-border bg-background hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+              >
                 <Linkedin className="w-4 h-4" />
-              </Button>
-              <Button variant="outline" size="sm" className="rounded-full w-10 h-10 p-0 hover:bg-primary hover:text-primary-foreground transition-all duration-300">
-                <Mail className="w-4 h-4" />
-              </Button>
+              </a>
             </div>
           </div>
 
