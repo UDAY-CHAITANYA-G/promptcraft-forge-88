@@ -1,39 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { Building2, Loader2, Home, Chrome } from 'lucide-react'
 import { Navbar } from '@/components/Navbar'
+import { useToast } from '@/hooks/use-toast';
 
 const Auth = () => {
   const { user, loading, signIn, signUp, signInWithGoogle } = useAuth()
   const navigate = useNavigate()
+  const { toast } = useToast()
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Redirect to homepage if user is already authenticated
+  useEffect(() => {
+    if (user && !loading) {
+      navigate('/')
+    }
+  }, [user, loading, navigate])
 
   const handleSignUp = async () => {
     if (password !== confirmPassword) {
-      setError('Passwords do not match')
+      toast({
+        title: "Error",
+        description: "Passwords do not match",
+        variant: "destructive",
+      })
       return
     }
     
     setIsSubmitting(true)
-    setError('')
     
     try {
-      await signUp(email, password)
-      navigate('/api-config')
+      const result = await signUp(email, password)
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: "Account created successfully!",
+        })
+        // Only navigate on successful signup
+        navigate('/api-config')
+      } else {
+        // Stay on current screen if signup fails
+        toast({
+          title: "Error",
+          description: result.error?.message || 'Failed to sign up',
+          variant: "destructive",
+        })
+      }
     } catch (err: any) {
-      setError(err.message || 'Failed to sign up')
+      toast({
+        title: "Error",
+        description: err.message || 'Failed to sign up',
+        variant: "destructive",
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -41,13 +69,30 @@ const Auth = () => {
 
   const handleSignIn = async () => {
     setIsSubmitting(true)
-    setError('')
     
     try {
-      await signIn(email, password)
-      navigate('/')
+      const result = await signIn(email, password)
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: "Signed in successfully!",
+        })
+        // Only navigate on successful signin
+        navigate('/')
+      } else {
+        // Stay on current screen if signin fails
+        toast({
+          title: "Error",
+          description: result.error?.message || 'Failed to sign in',
+          variant: "destructive",
+        })
+      }
     } catch (err: any) {
-      setError(err.message || 'Failed to sign in')
+      toast({
+        title: "Error",
+        description: err.message || 'Failed to sign in',
+        variant: "destructive",
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -55,12 +100,29 @@ const Auth = () => {
 
   const handleGoogle = async () => {
     setIsSubmitting(true)
-    setError('')
     try {
-      await signInWithGoogle()
-      navigate('/')
+      const result = await signInWithGoogle()
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: "Signed in with Google successfully!",
+        })
+        // Only navigate on successful Google signin
+        navigate('/')
+      } else {
+        // Stay on current screen if Google signin fails
+        toast({
+          title: "Error",
+          description: result.error?.message || 'Failed to sign in with Google',
+          variant: "destructive",
+        })
+      }
     } catch (err: any) {
-      setError(err.message || 'Failed to sign in with Google')
+      toast({
+        title: "Error",
+        description: err.message || 'Failed to sign in with Google',
+        variant: "destructive",
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -77,10 +139,7 @@ const Auth = () => {
     )
   }
 
-  if (user) {
-    navigate('/')
-    return null
-  }
+  // User will be automatically redirected by useEffect if authenticated
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
@@ -235,13 +294,6 @@ const Auth = () => {
                 </TabsContent>
               </Tabs>
               
-              {error && (
-                <Alert className="mt-4 border-destructive/50 bg-destructive/10">
-                  <AlertDescription className="text-destructive">
-                    {error}
-                  </AlertDescription>
-                </Alert>
-              )}
             </CardContent>
           </Card>
           

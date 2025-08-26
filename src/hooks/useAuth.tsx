@@ -7,9 +7,9 @@ interface AuthContextType {
   user: User | null
   session: Session | null
   loading: boolean
-  signUp: (email: string, password: string) => Promise<{ error: any }>
-  signIn: (email: string, password: string) => Promise<{ error: any }>
-  signInWithGoogle: () => Promise<{ error: any }>
+  signUp: (email: string, password: string) => Promise<{ error: any; success: boolean }>
+  signIn: (email: string, password: string) => Promise<{ error: any; success: boolean }>
+  signInWithGoogle: () => Promise<{ error: any; success: boolean }>
   signOut: () => Promise<void>
 }
 
@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
     }
     
-    return { error }
+    return { error, success: !error }
   }
 
   const signIn = async (email: string, password: string) => {
@@ -92,9 +92,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Sign in failed",
         description: error.message,
       })
+    } else {
+      toast({
+        title: "Welcome back!",
+        description: "You've successfully signed in.",
+      })
     }
     
-    return { error }
+    return { error, success: !error }
   }
 
   const signInWithGoogle = async () => {
@@ -113,7 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           title: "Google sign-in failed",
           description: error.message,
         })
-        return { error }
+        return { error, success: false }
       }
 
       if (data?.url) {
@@ -135,16 +140,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
           }, 500)
         })
+
+        // Check if we got a session
+        const { data: sessionData } = await supabase.auth.getSession()
+        if (sessionData.session) {
+          toast({
+            title: "Welcome back!",
+            description: "You've successfully signed in with Google.",
+          })
+          return { error: null, success: true }
+        } else {
+          return { error: null, success: false }
+        }
       }
 
-      return { error: null }
+      return { error: null, success: false }
     } catch (err: any) {
       toast({
         variant: "destructive",
         title: "Google sign-in error",
         description: err?.message || 'Unexpected error starting Google auth',
       })
-      return { error: err }
+      return { error: err, success: false }
     }
   }
 
