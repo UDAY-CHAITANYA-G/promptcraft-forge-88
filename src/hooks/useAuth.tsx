@@ -9,7 +9,7 @@ interface AuthContextType {
   loading: boolean
   signUp: (email: string, password: string) => Promise<{ error: any; success: boolean }>
   signIn: (email: string, password: string) => Promise<{ error: any; success: boolean }>
-  signInWithGoogle: () => Promise<{ error: any; success: boolean }>
+  signInWithGoogle: (isSignUp?: boolean) => Promise<{ error: any; success: boolean }>
   signOut: () => Promise<void>
 }
 
@@ -30,10 +30,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false)
 
         if (event === 'SIGNED_IN') {
-          toast({
-            title: "Welcome back!",
-            description: "You've successfully signed in.",
-          })
+          // Check if this is a new user (first time signing in)
+          const isNewUser = session?.user?.user_metadata?.provider === 'google' && 
+                           session?.user?.created_at === session?.user?.last_sign_in_at
+          
+          if (isNewUser) {
+            toast({
+              title: "Welcome to PromptForge! 🎉",
+              description: "Your Google account has been successfully connected and you're now signed in.",
+            })
+          } else {
+            toast({
+              title: "Welcome back! 👋",
+              description: "You've successfully signed in with Google.",
+            })
+          }
         } else if (event === 'SIGNED_OUT') {
           toast({
             title: "Signed out",
@@ -72,8 +83,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
     } else {
       toast({
-        title: "Check your email",
-        description: "We've sent you a confirmation link to complete your signup.",
+        title: "Account created successfully! 🎉",
+        description: "Please check your email and click the verification link to complete your signup. The confirmation email has been sent to your inbox.",
       })
     }
     
@@ -94,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
     } else {
       toast({
-        title: "Welcome back!",
+        title: "Welcome back! 👋",
         description: "You've successfully signed in.",
       })
     }
@@ -102,12 +113,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error, success: !error }
   }
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (isSignUp: boolean = false) => {
     try {
+      const action = isSignUp ? "sign up" : "sign in"
+      
+      // Show initial notification
+      toast({
+        title: `Google ${action} initiated`,
+        description: `Opening Google authentication in new tab for ${action}...`,
+      })
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          skipBrowserRedirect: true,
+          skipBrowserRedirect: false, // This enables new tab mode instead of popup
           redirectTo: `${window.location.origin}/`,
         }
       })
@@ -115,51 +134,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) {
         toast({
           variant: "destructive",
-          title: "Google sign-in failed",
+          title: `Google ${action} failed`,
           description: error.message,
         })
         return { error, success: false }
       }
 
       if (data?.url) {
-        const popup = window.open(
-          data.url,
-          'supabase_google_oauth',
-          'width=520,height=640,top=' + (window.screenY + (window.outerHeight - 640) / 2) + ',left=' + (window.screenX + (window.outerWidth - 520) / 2) + ',resizable,scrollbars=yes,status=1'
-        )
-
-        // Poll for session while the popup is open
-        await new Promise<void>((resolve) => {
-          const interval = setInterval(async () => {
-            const { data: sessionData } = await supabase.auth.getSession()
-            const isClosed = !popup || popup.closed
-            if (sessionData.session || isClosed) {
-              clearInterval(interval)
-              if (!isClosed) popup?.close()
-              resolve()
-            }
-          }, 500)
+        // Open Google sign-in in a new tab
+        window.open(data.url, '_blank')
+        
+        // Show additional notification about the new tab
+        toast({
+          title: `Google ${action} opened`,
+          description: `A new tab has opened for Google authentication. Please complete the ${action} process there.`,
         })
-
-        // Check if we got a session
-        const { data: sessionData } = await supabase.auth.getSession()
-        if (sessionData.session) {
-          toast({
-            title: "Welcome back!",
-            description: "You've successfully signed in with Google.",
-          })
-          return { error: null, success: true }
-        } else {
-          return { error: null, success: false }
-        }
+        
+        // Return success since the new tab is now open
+        return { error: null, success: true }
       }
 
       return { error: null, success: false }
     } catch (err: any) {
+      const action = isSignUp ? "sign up" : "sign in"
       toast({
         variant: "destructive",
-        title: "Google sign-in error",
-        description: err?.message || 'Unexpected error starting Google auth',
+        title: `Google ${action} error`,
+        description: err?.message || `Unexpected error starting Google ${action}`,
       })
       return { error: err, success: false }
     }

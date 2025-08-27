@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { Building2, Loader2, Home, Chrome } from 'lucide-react'
 import { Navbar } from '@/components/Navbar'
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const Auth = () => {
   const { user, loading, signIn, signUp, signInWithGoogle } = useAuth()
@@ -19,6 +20,9 @@ const Auth = () => {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showEmailVerification, setShowEmailVerification] = useState(false)
+  const [verificationEmail, setVerificationEmail] = useState('')
+  const [currentTab, setCurrentTab] = useState('signin')
 
   // Redirect to homepage if user is already authenticated
   useEffect(() => {
@@ -42,12 +46,13 @@ const Auth = () => {
     try {
       const result = await signUp(email, password)
       if (result.success) {
-        toast({
-          title: "Success",
-          description: "Account created successfully!",
-        })
-        // Only navigate on successful signup
-        navigate('/api-config')
+        // Show email verification state instead of navigating
+        setVerificationEmail(email)
+        setShowEmailVerification(true)
+        // Clear form data
+        setEmail('')
+        setPassword('')
+        setConfirmPassword('')
       } else {
         // Stay on current screen if signup fails
         toast({
@@ -101,14 +106,11 @@ const Auth = () => {
   const handleGoogle = async () => {
     setIsSubmitting(true)
     try {
-      const result = await signInWithGoogle()
+      const isSignUpMode = currentTab === 'signup'
+      const result = await signInWithGoogle(isSignUpMode)
       if (result.success) {
-        toast({
-          title: "Success",
-          description: "Signed in with Google successfully!",
-        })
-        // Only navigate on successful Google signin
-        navigate('/')
+        // The popup will handle the authentication flow
+        // No need to show additional notifications here as they're handled in the hook
       } else {
         // Stay on current screen if Google signin fails
         toast({
@@ -128,12 +130,122 @@ const Auth = () => {
     }
   }
 
+  const handleResendVerification = async () => {
+    if (!verificationEmail) {
+      toast({
+        title: "Error",
+        description: "No email address found",
+        variant: "destructive",
+      })
+      return
+    }
+    
+    setIsSubmitting(true)
+    try {
+      // Resend verification email using Supabase's resend method
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: verificationEmail,
+      })
+      
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to resend verification email",
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Verification email resent",
+          description: "A new verification email has been sent to your inbox.",
+        })
+      }
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: "Failed to resend verification email",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleBackToSignUp = () => {
+    setShowEmailVerification(false)
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5 flex items-center justify-center">
         <div className="text-center space-y-4">
           <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
           <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Show email verification screen if signup was successful
+  if (showEmailVerification) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
+        <Navbar />
+        <div className="pt-20 flex items-center justify-center p-4">
+          <div className="w-full max-w-md">
+            <Card className="bg-card/80 backdrop-blur-sm border-border shadow-elegant">
+              <CardHeader className="text-center">
+                <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <CardTitle className="text-xl text-green-600">Account Created Successfully! 🎉</CardTitle>
+                <CardDescription className="text-center mt-2">
+                  Your account has been created and a verification email has been sent to <strong>{verificationEmail}</strong>.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-blue-800 mb-2">Next Steps:</h4>
+                  <ol className="text-sm text-blue-700 space-y-1 list-decimal list-inside">
+                    <li>Check your email inbox (and spam folder)</li>
+                    <li>Click the verification link in the email</li>
+                    <li>Return to this app to sign in</li>
+                  </ol>
+                  <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
+                    💡 <strong>Tip:</strong> If you don't see the email, check your spam/junk folder
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <Button
+                    onClick={handleResendVerification}
+                    className="w-full"
+                    disabled={isSubmitting}
+                    variant="outline"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Resending...
+                      </>
+                    ) : (
+                      'Resend Verification Email'
+                    )}
+                  </Button>
+                  
+                  <Button
+                    onClick={handleBackToSignUp}
+                    className="w-full"
+                    variant="ghost"
+                  >
+                    Back to Sign Up
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     )
@@ -163,7 +275,7 @@ const Auth = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="signin" className="space-y-4">
+              <Tabs defaultValue="signin" value={currentTab} onValueChange={setCurrentTab} className="space-y-4">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="signin">Sign In</TabsTrigger>
                   <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -178,9 +290,9 @@ const Auth = () => {
                     disabled={isSubmitting}
                   >
                     <Chrome className="w-4 h-4 mr-2" />
-                    Continue with Google
+                    {isSubmitting ? 'Signing in...' : 'Sign in with Google'}
                   </Button>
-                  
+
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
                       <span className="w-full border-t" />
@@ -235,9 +347,9 @@ const Auth = () => {
                     disabled={isSubmitting}
                   >
                     <Chrome className="w-4 h-4 mr-2" />
-                    Sign up with Google
+                    {isSubmitting ? 'Signing up...' : 'Sign up with Google'}
                   </Button>
-                  
+
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
                       <span className="w-full border-t" />
