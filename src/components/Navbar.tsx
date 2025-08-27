@@ -3,12 +3,14 @@ import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/hooks/useAuth'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { LogOut, User, Building2, Sun, Moon, Sparkles } from 'lucide-react'
 
 export function Navbar() {
   const { user, signOut } = useAuth()
   const [theme, setTheme] = useState<'light' | 'dark'>('dark')
+  const location = useLocation()
+  const isHomepage = location.pathname === '/'
 
   useEffect(() => {
     // Check for saved theme preference or default to dark
@@ -63,6 +65,27 @@ export function Navbar() {
           </Link>
           
           <div className="flex items-center space-x-4">
+            {/* Navigation Tabs - Only show on homepage */}
+            {isHomepage && (
+              <div className="hidden md:flex items-center space-x-1">
+                <Link to="#learn">
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-300">
+                    Learn
+                  </Button>
+                </Link>
+                <Link to="#docs">
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-300">
+                    Docs
+                  </Button>
+                </Link>
+                <Link to="#about">
+                  <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-300">
+                    About Us
+                  </Button>
+                </Link>
+              </div>
+            )}
+            
             {/* Theme Toggle */}
             <Button
               variant="ghost"
