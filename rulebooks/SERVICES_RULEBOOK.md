@@ -30,6 +30,7 @@ src/services/
 - **User Services**: User-related features and data
 - **Communication Services**: External communication systems
 - **Configuration Services**: Application configuration
+- **Database Services**: Data persistence and management
 - **Utility Services**: Helper functions and utilities
 
 ---
@@ -416,6 +417,89 @@ jest.mock('@/integrations/supabase/client', () => ({
 
 ---
 
+## 🗄️ **Database Services**
+
+### **Database Service Pattern**
+- **Purpose**: Handle data persistence and database operations with comprehensive analytics
+- **Pattern**: Singleton with restructured Supabase integration
+- **Key Methods**: CRUD operations, data validation, encryption, analytics, monitoring
+- **Features**: Migration support, performance optimization, health monitoring, automated maintenance
+
+```typescript
+// ✅ Good: Database Service Pattern
+class DatabaseService {
+  private static instance: DatabaseService | null = null;
+  private encryptionService = createEncryptionService();
+  
+  static getInstance(): DatabaseService {
+    if (!DatabaseService.instance) {
+      DatabaseService.instance = new DatabaseService();
+    }
+    return DatabaseService.instance;
+  }
+  
+  private constructor() {
+    // Initialize database service
+  }
+  
+  async saveData(userId: string, data: any): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('table_name')
+        .insert({
+          user_id: userId,
+          ...data
+        });
+      
+      return !error;
+    } catch (error) {
+      console.error('Database save error:', error);
+      return false;
+    }
+  }
+  
+  async getData(userId: string): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('table_name')
+        .select('*')
+        .eq('user_id', userId);
+      
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Database get error:', error);
+      return [];
+    }
+  }
+}
+
+export const databaseService = DatabaseService.getInstance();
+```
+
+### **Database Integration Standards**
+- [ ] **Type Safety**: Use generated TypeScript types for database operations
+- [ ] **RLS Compliance**: Ensure all operations respect Row Level Security with comprehensive policies
+- [ ] **Error Handling**: Consistent error handling for database operations
+- [ ] **Encryption**: Encrypt sensitive data before storage with configurable encryption
+- [ ] **Validation**: Validate data before database operations
+- [ ] **Migration Support**: Follow structured migration approach with modular schema files
+- [ ] **Performance Optimization**: Implement strategic indexing and query optimization
+- [ ] **Analytics Integration**: Use built-in analytics and monitoring systems
+- [ ] **Maintenance Procedures**: Follow automated maintenance and health monitoring
+- [ ] **Cost Tracking**: Monitor token usage and cost for API operations
+
+### **Database Service Examples**
+- **User Preferences Service**: Manages user settings and preferences with enhanced configuration
+- **API Configuration Service**: Handles encrypted API key storage with validation and usage tracking
+- **Prompt History Service**: Tracks prompt generation history with performance metrics and cost tracking
+- **Feedback Service**: Manages user feedback collection with categorization and analytics
+- **Analytics Service**: Provides comprehensive analytics and monitoring capabilities
+- **Maintenance Service**: Handles automated maintenance and health monitoring
+- **Migration Service**: Manages database migrations and schema updates
+
+---
+
 ## 📊 **Performance Standards**
 
 ### **Service Optimization**
@@ -423,6 +507,57 @@ jest.mock('@/integrations/supabase/client', () => ({
 - [ ] **Caching**: Implement appropriate caching strategies
 - [ ] **Connection Pooling**: Reuse database connections
 - [ ] **Error Recovery**: Implement retry mechanisms
+
+### **Caching & Request Management**
+- [ ] **Request Caching**: Cache API responses with appropriate TTL
+- [ ] **Cache Invalidation**: Implement proper cache invalidation strategies
+- [ ] **Request Deduplication**: Prevent duplicate requests for same data
+- [ ] **AbortController**: Cancel in-flight requests when needed
+
+```typescript
+// ✅ Good: Caching Pattern
+class ApiConfigService {
+  private cache = new Map<string, { data: any; timestamp: number }>();
+  private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+  async getCachedData(key: string, fetcher: () => Promise<any>) {
+    const cached = this.cache.get(key);
+    const now = Date.now();
+    
+    if (cached && (now - cached.timestamp) < this.CACHE_TTL) {
+      return cached.data;
+    }
+    
+    const data = await fetcher();
+    this.cache.set(key, { data, timestamp: now });
+    return data;
+  }
+}
+
+// ✅ Good: Request Cancellation Pattern
+class MCPService {
+  private abortController: AbortController | null = null;
+
+  async generatePrompt(request: MCPRequest): Promise<MCPResponse> {
+    // Cancel previous request
+    if (this.abortController) {
+      this.abortController.abort();
+    }
+    
+    this.abortController = new AbortController();
+    
+    try {
+      const response = await this.callAPI(request, this.abortController.signal);
+      return response;
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        return { success: false, error: 'Request cancelled' };
+      }
+      throw error;
+    }
+  }
+}
+```
 
 ### **Memory Management**
 - [ ] **Singleton Pattern**: Use for stateful services

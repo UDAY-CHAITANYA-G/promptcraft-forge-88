@@ -24,6 +24,27 @@ This directory contains the official rulebooks and guidelines for the PromptCraf
 - **Purpose**: Defines service architecture, patterns, and implementation standards
 - **Usage**: Reference this rulebook when creating, modifying, or working with application services
 
+### **Configuration Rulebook**
+- **File**: `CONFIGURATION_RULEBOOK.md`
+- **Purpose**: Defines configuration architecture, environment management, and dynamic configuration patterns
+- **Usage**: Reference this rulebook when working with application configuration, environment variables, and feature flags
+
+### **Database Rulebook**
+- **File**: `DATABASE_RULEBOOK.md`
+- **Purpose**: Comprehensive database architecture, patterns, and standards for the restructured Supabase PostgreSQL system
+- **Usage**: Reference this rulebook for database design, migrations, maintenance, monitoring, analytics, and data access patterns
+- **Features**: Complete table documentation, migration strategy, maintenance procedures, performance optimization, security standards, and analytics system
+
+### **Authentication & UI Flow Rulebook**
+- **File**: `AUTHENTICATION_UI_FLOW_RULEBOOK.md`
+- **Purpose**: Defines authentication patterns, user interface flows, and home page standards
+- **Usage**: Reference this rulebook when working with authentication, sign-in/sign-up flows, and home page development
+
+### **API Configuration & Prompt Generation Rulebook**
+- **File**: `API_CONFIG_PROMPT_GENERATION_RULEBOOK.md`
+- **Purpose**: Defines API configuration management and prompt generation functionality patterns
+- **Usage**: Reference this rulebook when working with API configuration screens and prompt generation features
+
 ## 🎯 **Purpose of Rulebooks**
 
 Rulebooks in this directory serve as:
@@ -72,6 +93,10 @@ rulebooks/
 ├── APPLICATION_ARCHITECTURE_RULEBOOK.md # Application architecture and patterns
 ├── STYLING_RULEBOOK.md                 # Styling standards and design system
 ├── SERVICES_RULEBOOK.md                # Service architecture and patterns
+├── CONFIGURATION_RULEBOOK.md           # Configuration architecture and patterns
+├── DATABASE_RULEBOOK.md                # Database architecture and patterns
+├── AUTHENTICATION_UI_FLOW_RULEBOOK.md  # Authentication and UI flow patterns
+├── API_CONFIG_PROMPT_GENERATION_RULEBOOK.md # API config and prompt generation patterns
 └── [future rulebooks...]               # Additional rulebooks as needed
 ```
 

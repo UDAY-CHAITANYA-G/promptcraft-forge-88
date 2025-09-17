@@ -16,6 +16,10 @@
 export { apiConfigService } from './lib/apiConfigService';
 export type { ApiKeyData, ApiKeyValidation } from './lib/apiConfigService';
 
+// Dynamic API Configuration Service - New configurable service
+export { dynamicApiConfigService } from './lib/dynamicApiConfigService';
+export type { ValidationResult } from './lib/dynamicApiConfigService';
+
 // API Key Validator - Validates API key formats
 export { ApiKeyValidator } from './lib/apiKeyValidator';
 
@@ -78,6 +82,15 @@ export type {
   ModelSpecificPrompt 
 } from './lib/masterPromptConfig';
 
+// Dynamic Master Prompt Configuration - New configurable service
+export { 
+  dynamicMasterPromptService,
+  getMasterPrompt as getDynamicMasterPrompt,
+  getAllMasterPrompts as getAllDynamicMasterPrompts,
+  buildMasterPrompt as buildDynamicMasterPrompt,
+  masterPrompts as dynamicMasterPrompts
+} from './lib/dynamicMasterPromptConfig';
+
 // Email Configuration - EmailJS configuration
 export { emailConfig } from './lib/emailConfig';
 
@@ -87,6 +100,28 @@ export { emailConfig } from './lib/emailConfig';
 
 // Utility functions
 export { cn } from './lib/utils';
+
+// Error Handling Service - Centralized error handling
+export { 
+  errorHandlingService,
+  extractErrorMessage,
+  createErrorInfo,
+  handleError,
+  getUserFriendlyMessage,
+  createHookErrorHandler,
+  createServiceErrorHandler
+} from './lib/errorHandlingService';
+export type { ErrorInfo, ErrorHandlingOptions } from './lib/errorHandlingService';
+
+// Encryption Service - Secure encryption/decryption
+export { 
+  encryptionService,
+  createEncryptionService,
+  encryptApiKey,
+  decryptApiKey,
+  isEncryptionConfigured
+} from './lib/encryptionService';
+export type { EncryptionService } from './lib/encryptionService';
 
 // ============================================================================
 // SERVICE CATEGORIES FOR EASY ACCESS

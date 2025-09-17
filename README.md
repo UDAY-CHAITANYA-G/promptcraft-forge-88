@@ -11,6 +11,10 @@ For development standards and code review guidelines, see the [rulebooks directo
 - [Application Architecture Rulebook](./rulebooks/APPLICATION_ARCHITECTURE_RULEBOOK.md) - Architectural patterns and structural guidelines
 - [Styling Rulebook](./rulebooks/STYLING_RULEBOOK.md) - Styling standards and design system
 - [Services Rulebook](./rulebooks/SERVICES_RULEBOOK.md) - Service architecture and implementation patterns
+- [Configuration Rulebook](./rulebooks/CONFIGURATION_RULEBOOK.md) - Configuration architecture and environment management
+- [Database Rulebook](./rulebooks/DATABASE_RULEBOOK.md) - Comprehensive database architecture, migration strategy, maintenance, and analytics for restructured Supabase system
+- [Authentication & UI Flow Rulebook](./rulebooks/AUTHENTICATION_UI_FLOW_RULEBOOK.md) - Authentication patterns and UI flow standards
+- [API Configuration & Prompt Generation Rulebook](./rulebooks/API_CONFIG_PROMPT_GENERATION_RULEBOOK.md) - API configuration and prompt generation patterns
 - [Rulebooks Overview](./rulebooks/README.md) - Guide to using project rulebooks
 
 ## How can I edit this code?

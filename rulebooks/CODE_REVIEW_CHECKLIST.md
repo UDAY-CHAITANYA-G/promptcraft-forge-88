@@ -65,12 +65,17 @@ This checklist ensures code quality, maintainability, and consistency across the
 - [ ] **Input validation** - User inputs are properly validated
 - [ ] **XSS prevention** - No direct HTML injection
 - [ ] **CSRF protection** - API calls are properly protected
+- [ ] **Database security** - RLS policies enabled, data encryption for sensitive fields
+- [ ] **API key encryption** - API keys encrypted before database storage
 
 ### **Data Handling**
 - [ ] **Error boundaries** - React error boundaries are in place
 - [ ] **Loading states** - Proper loading states for async operations
 - [ ] **Error states** - Proper error handling and display
 - [ ] **Data validation** - Data is validated before use
+- [ ] **Database operations** - Proper error handling for database operations
+- [ ] **Type safety** - Use generated TypeScript types for database operations
+- [ ] **RLS compliance** - Database operations respect Row Level Security
 
 ---
 

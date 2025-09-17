@@ -26,6 +26,10 @@ src/
 ├── services/           # Application services layer
 │   ├── services.ts     # Main entry point
 │   └── lib/            # Individual service implementations
+├── config/             # Configuration system
+│   ├── index.ts        # Centralized configuration exports
+│   ├── app.config.ts   # Application-wide configuration
+│   └── environment.config.ts # Environment-specific settings
 ├── pages/              # Route components
 ├── integrations/       # External service integrations
 │   └── supabase/       # Supabase client and types
@@ -121,6 +125,12 @@ const Index = () => {
 - [ ] **Context** for shared application state
 - [ ] **React Query** for server state management
 - [ ] **Custom hooks** for reusable state logic
+
+### **Request Management**
+- [ ] **AbortController** for canceling in-flight requests
+- [ ] **Request deduplication** to prevent duplicate API calls
+- [ ] **Caching strategies** with appropriate cache invalidation
+- [ ] **Error recovery** with retry mechanisms
 
 ---
 
@@ -222,6 +232,22 @@ export interface MCPResponse {
 - [ ] **Service registry** - Use `getService()` for dynamic loading
 - [ ] **Singleton pattern** - For stateful services
 
+### **Configuration Integration**
+- [ ] **Environment variables** - Use centralized configuration system
+- [ ] **Feature flags** - Use `isFeatureEnabled()` for conditional features
+- [ ] **Provider configuration** - Use `getProviderConfig()` for dynamic providers
+- [ ] **Configuration validation** - Validate configuration on startup
+
+### **Database Integration**
+- [ ] **Row Level Security** - All tables must have RLS enabled with comprehensive policies
+- [ ] **Type Safety** - Use generated TypeScript types for database operations
+- [ ] **Service Pattern** - Use singleton pattern for database services
+- [ ] **Error Handling** - Consistent error handling for database operations
+- [ ] **Migration Strategy** - Follow structured migration approach with modular schema files
+- [ ] **Performance Optimization** - Implement strategic indexing and query optimization
+- [ ] **Analytics Integration** - Use built-in analytics and monitoring systems
+- [ ] **Maintenance Procedures** - Follow automated maintenance and health monitoring
+
 ---
 
 ## 🎨 **Styling Architecture**
@@ -293,6 +319,7 @@ export default {
 - **Provider**: Supabase Auth
 - **Pattern**: Context-based authentication
 - **Storage**: Local storage with automatic refresh
+- **UI Flow**: Comprehensive authentication and home page patterns (see Authentication & UI Flow Rulebook)
 
 ```typescript
 // ✅ Good: Auth Hook Pattern
@@ -326,9 +353,12 @@ export function useAuth() {
 ## 📊 **Data Management**
 
 ### **Database Schema**
-- **Provider**: Supabase PostgreSQL
-- **Pattern**: Normalized schema with proper relationships
-- **Security**: RLS policies for data access control
+- **Provider**: Supabase PostgreSQL with restructured modular system
+- **Pattern**: Normalized schema with proper relationships and comprehensive analytics
+- **Security**: Advanced RLS policies with encryption and audit logging
+- **Performance**: Strategic indexing, materialized views, and query optimization
+- **Maintenance**: Automated maintenance, health monitoring, and cleanup operations
+- **Analytics**: Built-in analytics system with usage tracking and performance metrics
 
 #### **Table Standards**
 - [ ] **UUID primary keys** for all tables
@@ -488,6 +518,7 @@ export const frameworks: FrameworkInfo[] = [
 - **Model Selection**: Dynamic model configuration per user
 - **API Key Management**: Encrypted storage and validation
 - **Rate Limiting**: Proper handling of API limits and quotas
+- **Configuration & Generation**: Comprehensive API configuration and prompt generation patterns (see API Configuration & Prompt Generation Rulebook)
 
 ```typescript
 // ✅ Good: AI Provider Integration Pattern
@@ -507,6 +538,170 @@ class MCPService {
     }
   }
 }
+```
+
+### **Custom Hooks Patterns**
+- **Service Integration**: Hooks that wrap service calls with state management
+- **Request Cancellation**: AbortController integration for canceling requests
+- **Caching**: Built-in caching with cache invalidation
+- **Error Handling**: Consistent error handling with toast notifications
+
+```typescript
+// ✅ Good: Custom Hook Pattern
+export const useMCP = () => {
+  const [state, setState] = useState<MCPState>({
+    isGenerating: false,
+    lastResponse: null,
+    generationHistory: [],
+    error: null,
+  });
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const generatePrompt = useCallback(async (request: MCPRequest) => {
+    // Cancel previous request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    abortControllerRef.current = new AbortController();
+    
+    try {
+      const response = await mcpService.generatePrompt(request);
+      // Handle success
+    } catch (error) {
+      // Handle error
+    }
+  }, []);
+
+  return { ...state, generatePrompt };
+};
+```
+
+---
+
+## ⚛️ **React Patterns & Best Practices**
+
+### **Component Lifecycle Management**
+- [ ] **useEffect Dependencies**: Always include all dependencies in dependency arrays
+- [ ] **Cleanup Functions**: Return cleanup functions from useEffect for subscriptions
+- [ ] **Conditional Effects**: Use conditional logic to prevent unnecessary effect runs
+- [ ] **Effect Ordering**: Order effects logically (data loading before UI updates)
+
+```typescript
+// ✅ Good: Effect with Proper Dependencies
+useEffect(() => {
+  if (user && hasAnyConfig) {
+    loadUserData();
+  }
+}, [user, hasAnyConfig, loadUserData]);
+
+// ✅ Good: Effect with Cleanup
+useEffect(() => {
+  const unsubscribe = userPreferencesService.subscribe((preferences) => {
+    setUserPreferences(preferences);
+  });
+  
+  return unsubscribe;
+}, [user, hasAnyConfig]);
+```
+
+### **State Management Patterns**
+- [ ] **State Structure**: Keep related state together in single state objects
+- [ ] **State Updates**: Use functional updates for state that depends on previous state
+- [ ] **State Initialization**: Initialize state with proper default values
+- [ ] **State Validation**: Validate state updates before applying them
+
+```typescript
+// ✅ Good: Structured State
+interface MCPState {
+  isGenerating: boolean;
+  lastResponse: MCPResponse | null;
+  generationHistory: MCPResponse[];
+  error: string | null;
+}
+
+// ✅ Good: Functional State Updates
+setState(prev => ({
+  ...prev,
+  isGenerating: false,
+  lastResponse: response,
+  generationHistory: [response, ...prev.generationHistory.slice(0, 9)],
+  error: null,
+}));
+```
+
+### **Performance Optimization**
+- [ ] **useCallback**: Wrap functions passed as props or dependencies
+- [ ] **useMemo**: Memoize expensive calculations
+- [ ] **React.memo**: Memoize components that receive stable props
+- [ ] **Lazy Loading**: Use React.lazy for code splitting
+
+```typescript
+// ✅ Good: useCallback for Stable References
+const generatePrompt = useCallback(async (request: MCPRequest) => {
+  // Implementation
+}, []);
+
+// ✅ Good: useMemo for Expensive Calculations
+const filteredHistory = useMemo(() => {
+  return history.filter(entry => 
+    entry.task_description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+}, [history, searchTerm]);
+```
+
+### **Error Handling Patterns**
+- [ ] **Error Boundaries**: Use error boundaries for component tree error handling
+- [ ] **Try-Catch**: Wrap async operations in try-catch blocks
+- [ ] **Error State**: Maintain error state in components
+- [ ] **User Feedback**: Show user-friendly error messages
+
+```typescript
+// ✅ Good: Error Boundary
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error?: Error }
+> {
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+  
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('App Error:', error, errorInfo);
+  }
+}
+
+// ✅ Good: Component Error Handling
+try {
+  const response = await mcpService.generatePrompt(request);
+  // Handle success
+} catch (error) {
+  setState(prev => ({
+    ...prev,
+    error: error instanceof Error ? error.message : 'Unknown error',
+    isGenerating: false,
+  }));
+}
+```
+
+### **Navigation & Routing**
+- [ ] **Protected Routes**: Check authentication before rendering protected components
+- [ ] **Route Guards**: Implement route guards for access control
+- [ ] **Navigation Hooks**: Use useNavigate for programmatic navigation
+- [ ] **Route Parameters**: Handle route parameters safely
+
+```typescript
+// ✅ Good: Protected Route Pattern
+useEffect(() => {
+  if (!user) {
+    navigate('/auth');
+    return;
+  }
+  
+  if (!loading && !hasAnyConfig) {
+    navigate('/api-config');
+  }
+}, [user, navigate, loading, hasAnyConfig]);
 ```
 
 ---
@@ -737,7 +932,7 @@ const apiKey = await apiConfigService.getEncryptedApiKey(provider)
 ### **Internal Resources**
 - [Code Review Checklist](./CODE_REVIEW_CHECKLIST.md)
 - [API Documentation](../docs/)
-- [Database Schema](../supabase/migrations/)
+- [Database Schema](../supabase/) - Restructured modular database system with comprehensive documentation
 
 ---
 

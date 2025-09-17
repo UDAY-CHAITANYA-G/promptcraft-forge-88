@@ -270,6 +270,104 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
 )
 ```
 
+### **Form Validation Patterns**
+```typescript
+// ✅ Good: Form Validation Pattern
+const [formData, setFormData] = useState({
+  taskDescription: '',
+  tone: 'professional',
+  length: 'medium'
+});
+
+const [errors, setErrors] = useState<Record<string, string>>({});
+
+const validateForm = () => {
+  const newErrors: Record<string, string> = {};
+  
+  if (!formData.taskDescription.trim()) {
+    newErrors.taskDescription = 'Task description is required';
+  }
+  
+  if (formData.taskDescription.length < 10) {
+    newErrors.taskDescription = 'Task description must be at least 10 characters';
+  }
+  
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
+
+// ✅ Good: Input with Validation
+<div className="space-y-2">
+  <Label htmlFor="taskDescription">Task Description</Label>
+  <Textarea
+    id="taskDescription"
+    placeholder="Describe what you want to create..."
+    value={formData.taskDescription}
+    onChange={(e) => setFormData(prev => ({ ...prev, taskDescription: e.target.value }))}
+    className={errors.taskDescription ? "border-destructive" : ""}
+  />
+  {errors.taskDescription && (
+    <p className="text-sm text-destructive">{errors.taskDescription}</p>
+  )}
+</div>
+```
+
+### **Database Form Patterns**
+```typescript
+// ✅ Good: Database Form with Loading State
+const [saving, setSaving] = useState(false);
+const [saveError, setSaveError] = useState<string | null>(null);
+
+const handleSave = async () => {
+  setSaving(true);
+  setSaveError(null);
+  
+  try {
+    const success = await databaseService.saveData(userId, formData);
+    if (success) {
+      toast({
+        title: "Success",
+        description: "Data saved successfully",
+      });
+    } else {
+      setSaveError("Failed to save data");
+    }
+  } catch (error) {
+    setSaveError("An error occurred while saving");
+  } finally {
+    setSaving(false);
+  }
+};
+
+// ✅ Good: Form with Database Integration
+<form onSubmit={handleSave} className="space-y-4">
+  {/* Form fields */}
+  
+  {saveError && (
+    <Alert className="border-red-500/50 bg-red-500/5">
+      <AlertCircle className="h-4 w-4 text-red-500" />
+      <AlertDescription className="text-red-600 text-sm">
+        {saveError}
+      </AlertDescription>
+    </Alert>
+  )}
+  
+  <Button type="submit" disabled={saving} className="w-full">
+    {saving ? (
+      <>
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        Saving...
+      </>
+    ) : (
+      <>
+        <Save className="mr-2 h-4 w-4" />
+        Save
+      </>
+    )}
+  </Button>
+</form>
+```
+
 ### **Badge Component Styling**
 
 #### **Badge Variants**
@@ -391,6 +489,50 @@ container: {
 - **Flexible Grids**: Use CSS Grid and Flexbox for responsive layouts
 - **Adaptive Typography**: Scale text sizes appropriately
 - **Touch-Friendly**: Minimum 44px touch targets on mobile
+
+### **Mobile-Specific Patterns**
+```typescript
+// ✅ Good: Mobile Menu Pattern
+const [showMobileMenu, setShowMobileMenu] = useState(false);
+
+// Mobile menu button - visible only on small screens
+<div className="lg:hidden">
+  <Button
+    variant="ghost"
+    size="sm"
+    className="h-8 w-8 p-0"
+    onClick={() => setShowMobileMenu(!showMobileMenu)}
+    title="Menu"
+  >
+    <Settings className="h-4 w-4" />
+  </Button>
+</div>
+
+// ✅ Good: Responsive Layout Pattern
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full max-w-7xl mx-auto">
+  {/* Left Side - Task Input with Menu */}
+  <div className="relative h-full">
+    {/* Menu positioned to the left of the task card - hidden on small screens */}
+    <div className="absolute -left-16 top-0 z-10 hidden lg:block">
+      <LeftSidebar showNavigation={true} />
+    </div>
+    
+    <Card className="h-full">
+      {/* Content */}
+    </Card>
+  </div>
+</div>
+
+// ✅ Good: Responsive Button Layout
+<div className="flex flex-col sm:flex-row gap-3 justify-center">
+  <Button variant="default" className="w-full sm:w-auto">
+    Primary Action
+  </Button>
+  <Button variant="outline" className="w-full sm:w-auto">
+    Secondary Action
+  </Button>
+</div>
+```
 
 ---
 
@@ -632,6 +774,72 @@ container: {
     'Submit'
   )}
 </Button>
+
+// ✅ Good: Database Loading State
+{loading ? (
+  <div className="flex items-center justify-center p-8">
+    <div className="text-center space-y-4">
+      <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+      <p className="text-muted-foreground">Loading data...</p>
+    </div>
+  </div>
+) : data.length === 0 ? (
+  <div className="text-center p-8 text-muted-foreground">
+    <Database className="h-12 w-12 mx-auto mb-4 opacity-50" />
+    <p>No data available</p>
+  </div>
+) : (
+  <div className="space-y-4">
+    {/* Data content */}
+  </div>
+)}
+
+// ✅ Good: Loading Button with Icons
+<Button disabled={isGenerating} className="w-full">
+  {isGenerating ? (
+    <>
+      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      Generating...
+    </>
+  ) : (
+    <>
+      <Sparkles className="mr-2 h-4 w-4" />
+      Generate Prompt
+    </>
+  )}
+</Button>
+
+// ✅ Good: Loading State with Skeleton
+{loading ? (
+  <div className="space-y-4">
+    <div className="h-4 bg-muted rounded animate-pulse" />
+    <div className="h-4 bg-muted rounded animate-pulse w-3/4" />
+    <div className="h-4 bg-muted rounded animate-pulse w-1/2" />
+  </div>
+) : (
+  <div>
+    {/* Actual content */}
+  </div>
+)}
+
+// ✅ Good: Conditional Loading States
+{isGenerating ? (
+  <div className="flex items-center justify-center p-8">
+    <div className="text-center space-y-4">
+      <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+      <p className="text-muted-foreground">Generating your prompt...</p>
+    </div>
+  </div>
+) : lastResponse ? (
+  <div className="space-y-4">
+    {/* Generated content */}
+  </div>
+) : (
+  <div className="text-center p-8 text-muted-foreground">
+    <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
+    <p>Enter your task description to get started</p>
+  </div>
+)}
 ```
 
 ### **Error State Styling**
@@ -675,6 +883,108 @@ toast({
   description: "Failed to generate prompt. Please try again.",
   variant: "destructive"
 })
+
+// ✅ Good: Toast with Dynamic Content
+toast({
+  title: "Success!",
+  description: `Prompt generated using ${response.model?.toUpperCase()} and ${response.framework?.toUpperCase()} framework`,
+})
+
+// ✅ Good: Toast with Warning
+toast({
+  title: "API Key Warning",
+  description: `The ${provider} API key has warnings: ${isValid.warnings.join(', ')}`,
+  variant: "default"
+})
+```
+
+### **User Feedback Patterns**
+```typescript
+// ✅ Good: Loading State with Toast
+const handleAction = async () => {
+  try {
+    setLoading(true);
+    const result = await service.performAction();
+    
+    toast({
+      title: "Success",
+      description: "Action completed successfully!",
+    });
+  } catch (error) {
+    toast({
+      title: "Error",
+      description: "Failed to complete action. Please try again.",
+      variant: "destructive"
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
+// ✅ Good: Confirmation Dialog
+const handleDelete = async () => {
+  if (window.confirm('Are you sure you want to delete this item? This action cannot be undone.')) {
+    try {
+      await service.deleteItem(id);
+      toast({
+        title: "Success",
+        description: "Item deleted successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete item",
+        variant: "destructive"
+      });
+    }
+  }
+};
+```
+
+### **Copy Functionality Patterns**
+```typescript
+// ✅ Good: Copy to Clipboard Pattern
+const [copied, setCopied] = useState(false);
+
+const handleCopy = async () => {
+  try {
+    await navigator.clipboard.writeText(generatedPrompt);
+    setCopied(true);
+    toast({
+      title: "Copied!",
+      description: "Prompt copied to clipboard",
+    });
+    
+    // Reset copied state after 2 seconds
+    setTimeout(() => setCopied(false), 2000);
+  } catch (error) {
+    toast({
+      title: "Error",
+      description: "Failed to copy to clipboard",
+      variant: "destructive"
+    });
+  }
+};
+
+// ✅ Good: Copy Button with State
+<Button
+  variant="outline"
+  size="sm"
+  onClick={handleCopy}
+  className="flex items-center gap-2"
+>
+  {copied ? (
+    <>
+      <CheckCircle className="h-4 w-4 text-green-500" />
+      Copied!
+    </>
+  ) : (
+    <>
+      <Copy className="h-4 w-4" />
+      Copy
+    </>
+  )}
+</Button>
 ```
 
 ---
