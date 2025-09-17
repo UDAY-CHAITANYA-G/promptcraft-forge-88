@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ApiKeyValidator } from '@/lib/apiKeyValidator';
+import { ApiKeyValidator } from '@/services/services';
 
 interface ValidationResult {
   isValid: boolean;

@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { cn } from "@/lib/utils";
+import { cn } from "@/services/services";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
@@ -26,7 +26,7 @@ import {
   Area,
   AreaChart
 } from 'recharts';
-import { promptHistoryService, type PromptHistoryEntry, type PromptHistoryStats } from '@/lib/promptHistoryService';
+import { promptHistoryService, type PromptHistoryEntry, type PromptHistoryStats } from '@/services/services';
 import { useToast } from '@/hooks/use-toast';
 
 interface HistoryPopupProps {

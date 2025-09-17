@@ -24,6 +24,11 @@ dist-ssr
 *.sw?
 
 # # Private configuration files
-# src/lib/emailConfig.private.ts
+# src/services/lib/emailConfig.private.ts
 # *.private.ts
 # *.private.js
+# .env
+# .env.local
+# .env.development.local
+# .env.test.local
+# .env.production.local

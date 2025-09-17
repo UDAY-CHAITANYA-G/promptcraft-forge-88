@@ -14,10 +14,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useApiConfig } from '@/hooks/useApiConfig';
 import { LeftSidebar } from '@/components/LeftSidebar';
 import { Navbar } from '@/components/Navbar';
-import { userPreferencesService, frameworks } from '@/lib/userPreferencesService';
+import { userPreferencesService, frameworks, promptHistoryService } from '@/services/services';
 import { useMCP } from '@/hooks/useMCP';
-import { getMasterPrompt } from '@/lib/masterPromptConfig';
-import { promptHistoryService } from '@/lib/promptHistoryService';
 
 interface Framework {
   id: string;

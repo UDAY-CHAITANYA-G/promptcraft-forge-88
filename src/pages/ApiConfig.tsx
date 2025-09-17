@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useApiConfig } from '@/hooks/useApiConfig';
 import { useToast } from '@/hooks/use-toast';
-import { apiConfigService } from '@/lib/apiConfigService';
+import { apiConfigService } from '@/services/services';
 import { LeftSidebar } from '@/components/LeftSidebar';
 import { Navbar } from '@/components/Navbar';
 

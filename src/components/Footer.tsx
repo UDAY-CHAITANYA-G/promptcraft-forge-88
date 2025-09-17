@@ -4,7 +4,7 @@ import { Building2, Sparkles, Github, Linkedin, Mail, Heart, ArrowUp, Loader2 } 
 import { Link } from "react-router-dom"
 import { useState } from "react"
 import { Textarea } from "@/components/ui/textarea"
-import { feedbackService, FeedbackData } from "@/lib/feedbackService"
+import { feedbackService, FeedbackData } from "@/services/services"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/hooks/useAuth"
 

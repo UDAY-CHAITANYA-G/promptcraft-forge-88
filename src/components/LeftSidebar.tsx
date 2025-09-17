@@ -7,8 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { useApiConfig } from '@/hooks/useApiConfig';
-import { userPreferencesService, frameworks, type UserPreferences } from '@/lib/userPreferencesService';
-import { apiConfigService } from '@/lib/apiConfigService';
+import { userPreferencesService, frameworks, apiConfigService, type UserPreferences } from '@/services/services';
 import { HistoryPopup } from './HistoryPopup';
 import { useNavigate } from 'react-router-dom';
 

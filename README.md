@@ -1,8 +1,17 @@
-# Welcome to your Lovable project
+# PromptCraft Forge - AI Prompt Generation Platform
 
 ## Project info
 
 **URL**: https://lovable.dev/projects/e08736c2-70e7-407f-9cb8-700968702efc
+
+## 📚 **Rulebooks & Standards**
+
+For development standards and code review guidelines, see the [rulebooks directory](./rulebooks/):
+- [Code Review Checklist](./rulebooks/CODE_REVIEW_CHECKLIST.md) - Comprehensive code quality standards
+- [Application Architecture Rulebook](./rulebooks/APPLICATION_ARCHITECTURE_RULEBOOK.md) - Architectural patterns and structural guidelines
+- [Styling Rulebook](./rulebooks/STYLING_RULEBOOK.md) - Styling standards and design system
+- [Services Rulebook](./rulebooks/SERVICES_RULEBOOK.md) - Service architecture and implementation patterns
+- [Rulebooks Overview](./rulebooks/README.md) - Guide to using project rulebooks
 
 ## How can I edit this code?
 
