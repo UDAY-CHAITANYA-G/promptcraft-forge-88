@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -40,6 +40,24 @@ const ApiConfig = () => {
   const [errors, setErrors] = useState<string[]>([]);
   const [dbStatus, setDbStatus] = useState<{ connected: boolean; tableExists: boolean; error?: string } | null>(null);
 
+  const testDatabaseConnection = useCallback(async () => {
+    try {
+      const status = await apiConfigService.testDatabaseConnection();
+      setDbStatus(status);
+      
+      if (!status.connected || !status.tableExists) {
+        toast({
+          title: "Database Issue",
+          description: status.error || "Unable to connect to database",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error testing database connection:', error);
+      setDbStatus({ connected: false, tableExists: false, error: 'Connection test failed' });
+    }
+  }, [toast]);
+
   useEffect(() => {
     // Check if user is authenticated
     if (!user) {
@@ -58,7 +76,7 @@ const ApiConfig = () => {
     };
     setApiKeys(initialConfigs);
     setOriginalApiKeys(initialConfigs);
-  }, [user, navigate, configs]);
+  }, [user, navigate, configs, testDatabaseConnection]);
 
   // Check if any changes have been made
   const hasChanges = () => {
@@ -85,24 +103,6 @@ const ApiConfig = () => {
 
   // Check if user can proceed to prompt generator
   const canProceed = hasVerifiedApis() && errors.length === 0;
-
-  const testDatabaseConnection = async () => {
-    try {
-      const status = await apiConfigService.testDatabaseConnection();
-      setDbStatus(status);
-      
-      if (!status.connected || !status.tableExists) {
-        toast({
-          title: "Database Issue",
-          description: status.error || "Unable to connect to database",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error('Error testing database connection:', error);
-      setDbStatus({ connected: false, tableExists: false, error: 'Connection test failed' });
-    }
-  };
 
   const handleApiKeyChange = (model: keyof ApiConfig, value: string) => {
     setApiKeys(prev => ({ ...prev, [model]: value }));

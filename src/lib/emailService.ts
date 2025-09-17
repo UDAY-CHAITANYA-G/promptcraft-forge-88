@@ -24,11 +24,16 @@ export const emailService = {
       emailjs.init(emailConfig.publicKey);
 
       // Derive best available name and email
-      const userEmail = user?.email || (user?.user_metadata as any)?.email || 'no-reply@example.com';
+      interface UserMetadata {
+        email?: string;
+        full_name?: string;
+        name?: string;
+      }
+      const userEmail = user?.email || (user?.user_metadata as UserMetadata)?.email || 'no-reply@example.com';
       const userName =
         displayName ||
-        (user?.user_metadata as any)?.full_name ||
-        (user?.user_metadata as any)?.name ||
+        (user?.user_metadata as UserMetadata)?.full_name ||
+        (user?.user_metadata as UserMetadata)?.name ||
         (userEmail && typeof userEmail === 'string' ? userEmail.split('@')[0] : 'User');
 
       // Prepare template parameters

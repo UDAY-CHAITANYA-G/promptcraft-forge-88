@@ -1,7 +1,9 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "promptcraft-forge",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "AI-powered prompt generation and management platform",
+  "keywords": ["ai", "prompts", "react", "typescript", "supabase"],
   "type": "module",
   "scripts": {
     "dev": "vite",

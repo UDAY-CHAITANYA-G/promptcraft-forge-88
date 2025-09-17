@@ -3,13 +3,18 @@ import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/integrations/supabase/client'
 import { useToast } from '@/hooks/use-toast'
 
+interface AuthError {
+  message: string;
+  code?: string;
+}
+
 interface AuthContextType {
   user: User | null
   session: Session | null
   loading: boolean
-  signUp: (email: string, password: string) => Promise<{ error: any; success: boolean }>
-  signIn: (email: string, password: string) => Promise<{ error: any; success: boolean }>
-  signInWithGoogle: (isSignUp?: boolean) => Promise<{ error: any; success: boolean }>
+  signUp: (email: string, password: string) => Promise<{ error: AuthError | null; success: boolean }>
+  signIn: (email: string, password: string) => Promise<{ error: AuthError | null; success: boolean }>
+  signInWithGoogle: (isSignUp?: boolean) => Promise<{ error: AuthError | null; success: boolean }>
   signOut: () => Promise<void>
 }
 
@@ -155,14 +160,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       return { error: null, success: false }
-    } catch (err: any) {
+    } catch (err: unknown) {
       const action = isSignUp ? "sign up" : "sign in"
+      const errorMessage = err instanceof Error ? err.message : `Unexpected error starting Google ${action}`
       toast({
         variant: "destructive",
         title: `Google ${action} error`,
-        description: err?.message || `Unexpected error starting Google ${action}`,
+        description: errorMessage,
       })
-      return { error: err, success: false }
+      return { error: { message: errorMessage }, success: false }
     }
   }
 

@@ -218,7 +218,7 @@ class ApiConfigService {
     const trimmedKey = apiKey.trim();
     
     switch (provider) {
-      case 'openai':
+      case 'openai': {
         // Check if it starts with sk-
         if (!trimmedKey.startsWith('sk-')) {
           result.isValid = false;
@@ -243,6 +243,7 @@ class ApiConfigService {
           result.errors.push('API key contains invalid characters (only letters, numbers, hyphens, and underscores allowed)');
         }
         break;
+      }
 
       case 'gemini':
         if (!trimmedKey.startsWith('AIza')) {
@@ -255,7 +256,7 @@ class ApiConfigService {
         }
         break;
 
-      case 'anthropic':
+      case 'anthropic': {
         if (!trimmedKey.startsWith('sk-ant-')) {
           result.isValid = false;
           result.errors.push('Anthropic API key must start with "sk-ant-"');
@@ -266,6 +267,7 @@ class ApiConfigService {
           result.errors.push('Anthropic API key part must be at least 32 characters long');
         }
         break;
+      }
     }
 
     return result;

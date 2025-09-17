@@ -28,10 +28,11 @@ const GoogleAuthDemo = () => {
           variant: "destructive",
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Unexpected error occurred';
       toast({
         title: "Error",
-        description: err.message || 'Unexpected error occurred',
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

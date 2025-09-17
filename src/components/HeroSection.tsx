@@ -4,10 +4,19 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Building2, Sparkles, Bot, Zap, ArrowRight, CheckCircle, Star, Users, Globe } from "lucide-react"
 import heroImage from "@/assets/hero-ai-prompt.jpg"
 
+interface User {
+  id: string;
+  email?: string;
+  user_metadata?: {
+    full_name?: string;
+    name?: string;
+  };
+}
+
 interface HeroSectionProps {
   onStartCreatingPrompts: () => void
   isLoading: boolean
-  user?: any
+  user?: User
 }
 
 export function HeroSection({ onStartCreatingPrompts, isLoading, user }: HeroSectionProps) {

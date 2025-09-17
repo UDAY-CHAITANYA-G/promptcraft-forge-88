@@ -50,7 +50,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : "button"
 
     const handleMove: React.MouseEventHandler<HTMLElement> = (e) => {
-      if (onMouseMove) onMouseMove(e as any)
+      if (onMouseMove) onMouseMove(e as React.MouseEvent<HTMLButtonElement>)
       const target = e.currentTarget as HTMLElement
       const rect = target.getBoundingClientRect()
       const x = e.clientX - rect.left
@@ -60,7 +60,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     const handleLeave: React.MouseEventHandler<HTMLElement> = (e) => {
-      if (onMouseLeave) onMouseLeave(e as any)
+      if (onMouseLeave) onMouseLeave(e as React.MouseEvent<HTMLButtonElement>)
       const target = e.currentTarget as HTMLElement
       // Move the highlight out to fade naturally
       target.style.setProperty("--x", `-1000px`)

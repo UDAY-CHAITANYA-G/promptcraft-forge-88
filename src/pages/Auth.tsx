@@ -61,10 +61,11 @@ const Auth = () => {
           variant: "destructive",
         })
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to sign up';
       toast({
         title: "Error",
-        description: err.message || 'Failed to sign up',
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
@@ -92,10 +93,11 @@ const Auth = () => {
           variant: "destructive",
         })
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to sign in';
       toast({
         title: "Error",
-        description: err.message || 'Failed to sign in',
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
@@ -119,10 +121,11 @@ const Auth = () => {
           variant: "destructive",
         })
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to sign in with Google';
       toast({
         title: "Error",
-        description: err.message || 'Failed to sign in with Google',
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
@@ -160,10 +163,11 @@ const Auth = () => {
           description: "A new verification email has been sent to your inbox.",
         })
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to resend verification email";
       toast({
         title: "Error",
-        description: "Failed to resend verification email",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
