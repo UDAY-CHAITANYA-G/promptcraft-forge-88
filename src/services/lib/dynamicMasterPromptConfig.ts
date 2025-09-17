@@ -115,9 +115,11 @@ class DynamicMasterPromptService {
 
   // Build the master prompt template with dynamic framework list
   private buildMasterPromptTemplate(): string {
-    const frameworksList = this.getAllFrameworks()
+    // Get frameworks directly from config to avoid circular dependency
+    const frameworksList = Object.values(appConfig.frameworks)
+      .filter(framework => framework.enabled)
       .map((framework, index) => {
-        const components = framework.variables.join(', ');
+        const components = framework.components.join(', ');
         return `${index + 1}. **${framework.name}** → ${components}`;
       })
       .join('\n');
