@@ -195,3 +195,4 @@ BEGIN
     RAISE NOTICE '4. Update documentation';
     RAISE NOTICE '========================================';
 END $$;
+

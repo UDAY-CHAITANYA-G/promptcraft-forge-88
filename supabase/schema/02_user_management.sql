@@ -217,3 +217,4 @@ BEGIN
         EXTRACT(DAY FROM (now() - (SELECT created_at FROM auth.users WHERE id = user_uuid)))::INTEGER as account_age_days;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+

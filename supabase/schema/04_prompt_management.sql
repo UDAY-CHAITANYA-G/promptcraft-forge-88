@@ -311,3 +311,4 @@ BEGIN
     WHERE id = template_uuid;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+

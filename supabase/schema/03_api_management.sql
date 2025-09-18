@@ -278,3 +278,4 @@ BEGIN
     RETURN current_minute_requests < requests_per_minute AND current_day_requests < requests_per_day;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
