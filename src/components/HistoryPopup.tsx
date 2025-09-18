@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { X, BarChart3, Calendar, Trash2, Eye, Clock, Bot, Layers, TrendingUp, Activity, Zap, Sparkles, Filter, Search, Download, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { cn } from "@/lib/utils";
+import { cn } from "@/services/services";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
@@ -26,7 +26,7 @@ import {
   Area,
   AreaChart
 } from 'recharts';
-import { promptHistoryService, type PromptHistoryEntry, type PromptHistoryStats } from '@/lib/promptHistoryService';
+import { promptHistoryService, type PromptHistoryEntry, type PromptHistoryStats } from '@/services/services';
 import { useToast } from '@/hooks/use-toast';
 
 interface HistoryPopupProps {
@@ -68,38 +68,7 @@ export const HistoryPopup: React.FC<HistoryPopupProps> = ({ isOpen, onClose }) =
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (isOpen) {
-      loadData();
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    filterHistory();
-  }, [history, searchTerm, selectedFilter]);
-
-  const filterHistory = () => {
-    let filtered = history;
-
-    // Apply search filter
-    if (searchTerm) {
-      filtered = filtered.filter(entry => 
-        entry.user_input.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        entry.ai_response.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        entry.framework_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        entry.model.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Apply status filter
-    if (selectedFilter !== 'all') {
-      filtered = filtered.filter(entry => entry.status === selectedFilter);
-    }
-
-    setFilteredHistory(filtered);
-  };
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const [historyData, statsData] = await Promise.all([
@@ -118,7 +87,38 @@ export const HistoryPopup: React.FC<HistoryPopupProps> = ({ isOpen, onClose }) =
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  const filterHistory = useCallback(() => {
+    let filtered = history;
+
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(entry => 
+        entry.user_input.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entry.ai_response.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entry.framework_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entry.model.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Apply status filter
+    if (selectedFilter !== 'all') {
+      filtered = filtered.filter(entry => entry.status === selectedFilter);
+    }
+
+    setFilteredHistory(filtered);
+  }, [history, searchTerm, selectedFilter]);
+
+  useEffect(() => {
+    if (isOpen) {
+      loadData();
+    }
+  }, [isOpen, loadData]);
+
+  useEffect(() => {
+    filterHistory();
+  }, [filterHistory]);
 
   const handleDeleteEntry = async (id: string) => {
     try {
@@ -545,9 +545,6 @@ export const HistoryPopup: React.FC<HistoryPopupProps> = ({ isOpen, onClose }) =
                 {/* Enhanced Header with Search and Filters */}
                 <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <h3 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                      Prompt History
-                    </h3>
                     <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
                       {filteredHistory.length} entries
                     </Badge>
@@ -810,6 +807,10 @@ export const HistoryPopup: React.FC<HistoryPopupProps> = ({ isOpen, onClose }) =
             </DialogContent>
           </Dialog>
         )}
+        {/* Footer */}
+        <div className="px-6 pb-6 pt-2 text-xs text-muted-foreground flex justify-end">
+          <span>uday</span>
+        </div>
       </CustomDialogContent>
     </Dialog>
   );

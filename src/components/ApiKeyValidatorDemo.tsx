@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
-import { ApiKeyValidator } from '@/lib/apiKeyValidator';
+import { ApiKeyValidator } from '@/services/services';
+
+interface ValidationResult {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+  provider?: string;
+}
 
 export const ApiKeyValidatorDemo: React.FC = () => {
   const [apiKey, setApiKey] = useState('');
-  const [validationResult, setValidationResult] = useState<any>(null);
+  const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [summary, setSummary] = useState('');
 
   const handleValidation = () => {

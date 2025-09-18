@@ -1,19 +1,55 @@
-import { useState, useCallback } from 'react';
-import { mcpService, MCPRequest, MCPResponse } from '@/lib/mcpService';
+import { useState, useCallback, useRef } from 'react';
+import { mcpService, MCPRequest, MCPResponse } from '@/services/services';
 import { useToast } from './use-toast';
 
+interface MCPState {
+  isGenerating: boolean;
+  lastResponse: MCPResponse | null;
+  generationHistory: MCPResponse[];
+  error: string | null;
+}
+
 export const useMCP = () => {
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [lastResponse, setLastResponse] = useState<MCPResponse | null>(null);
+  const [state, setState] = useState<MCPState>({
+    isGenerating: false,
+    lastResponse: null,
+    generationHistory: [],
+    error: null,
+  });
   const { toast } = useToast();
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const generatePrompt = useCallback(async (request: MCPRequest): Promise<MCPResponse> => {
-    setIsGenerating(true);
-    setLastResponse(null);
+    // Cancel previous request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Create new abort controller
+    abortControllerRef.current = new AbortController();
+
+    setState(prev => ({
+      ...prev,
+      isGenerating: true,
+      lastResponse: null,
+      error: null,
+    }));
     
     try {
       const response = await mcpService.generatePrompt(request);
-      setLastResponse(response);
+      
+      // Check if request was aborted
+      if (abortControllerRef.current?.signal.aborted) {
+        return response;
+      }
+
+      setState(prev => ({
+        ...prev,
+        isGenerating: false,
+        lastResponse: response,
+        generationHistory: [response, ...prev.generationHistory.slice(0, 9)], // Keep last 10
+        error: null,
+      }));
       
       if (response.success) {
         toast({
@@ -30,12 +66,26 @@ export const useMCP = () => {
       
       return response;
     } catch (error) {
+      // Don't update state if request was aborted
+      if (abortControllerRef.current?.signal.aborted) {
+        return {
+          success: false,
+          error: 'Request was cancelled'
+        };
+      }
+
       const errorResponse: MCPResponse = {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred'
       };
       
-      setLastResponse(errorResponse);
+      setState(prev => ({
+        ...prev,
+        isGenerating: false,
+        lastResponse: errorResponse,
+        error: errorResponse.error || null,
+      }));
+
       toast({
         title: "Error",
         description: "An unexpected error occurred while generating the prompt",
@@ -43,8 +93,6 @@ export const useMCP = () => {
       });
       
       return errorResponse;
-    } finally {
-      setIsGenerating(false);
     }
   }, [toast]);
 
@@ -58,14 +106,57 @@ export const useMCP = () => {
   }, []);
 
   const clearResponse = useCallback(() => {
-    setLastResponse(null);
+    setState(prev => ({
+      ...prev,
+      lastResponse: null,
+      error: null,
+    }));
+  }, []);
+
+  const clearHistory = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      generationHistory: [],
+    }));
+  }, []);
+
+  const cancelGeneration = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    setState(prev => ({
+      ...prev,
+      isGenerating: false,
+    }));
+  }, []);
+
+  const getSupportedModels = useCallback(() => {
+    return mcpService.getSupportedModels();
+  }, []);
+
+  const getGeminiModelRecommendations = useCallback(() => {
+    return mcpService.getGeminiModelRecommendations();
+  }, []);
+
+  // Cleanup on unmount
+  const cleanup = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
   }, []);
 
   return {
-    isGenerating,
-    lastResponse,
+    isGenerating: state.isGenerating,
+    lastResponse: state.lastResponse,
+    generationHistory: state.generationHistory,
+    error: state.error,
     generatePrompt,
     validateModelConnection,
-    clearResponse
+    clearResponse,
+    clearHistory,
+    cancelGeneration,
+    getSupportedModels,
+    getGeminiModelRecommendations,
+    cleanup,
   };
 };

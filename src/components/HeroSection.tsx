@@ -4,13 +4,29 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Building2, Sparkles, Bot, Zap, ArrowRight, CheckCircle, Star, Users, Globe } from "lucide-react"
 import heroImage from "@/assets/hero-ai-prompt.jpg"
 
+interface User {
+  id: string;
+  email?: string;
+  user_metadata?: {
+    full_name?: string;
+    name?: string;
+  };
+}
+
 interface HeroSectionProps {
   onStartCreatingPrompts: () => void
   isLoading: boolean
-  user?: any
+  user?: User
 }
 
 export function HeroSection({ onStartCreatingPrompts, isLoading, user }: HeroSectionProps) {
+  const handlePointerMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    e.currentTarget.style.setProperty('--x', `${x}px`)
+    e.currentTarget.style.setProperty('--y', `${y}px`)
+  }
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background with gradient overlay */}
@@ -31,7 +47,7 @@ export function HeroSection({ onStartCreatingPrompts, isLoading, user }: HeroSec
       </div>
       
       {/* Main Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-20">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 pt-0 pb-20">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           
           {/* Left Column - Hero Content */}
@@ -91,10 +107,19 @@ export function HeroSection({ onStartCreatingPrompts, isLoading, user }: HeroSec
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Button 
                 size="lg"
-                className="text-lg group bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                className="relative overflow-hidden text-lg group bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                 onClick={onStartCreatingPrompts}
                 disabled={isLoading}
+                onMouseMove={handlePointerMove}
               >
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{
+                    background:
+                      'radial-gradient(160px circle at var(--x) var(--y), rgba(255,255,255,0.25), transparent 60%)'
+                  }}
+                />
                 {isLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3" />
@@ -111,8 +136,17 @@ export function HeroSection({ onStartCreatingPrompts, isLoading, user }: HeroSec
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="text-lg border-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                className="relative overflow-hidden text-lg border-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                onMouseMove={handlePointerMove}
               >
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{
+                    background:
+                      'radial-gradient(160px circle at var(--x) var(--y), hsl(var(--primary)), transparent 60%)'
+                  }}
+                />
                 <Sparkles className="mr-2 w-5 h-5" />
                 View Frameworks
               </Button>
@@ -194,30 +228,7 @@ export function HeroSection({ onStartCreatingPrompts, isLoading, user }: HeroSec
                 </CardContent>
               </Card>
             </div>
-            
-            {/* Social Proof */}
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-muted/50 to-muted/30 backdrop-blur-sm">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex -space-x-2">
-                      {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="w-8 h-8 bg-gradient-to-r from-primary to-accent rounded-full border-2 border-background" />
-                      ))}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Trusted by developers</p>
-                      <p className="text-xs text-muted-foreground">Join thousands of users</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                        
           </div>
         </div>
       </div>

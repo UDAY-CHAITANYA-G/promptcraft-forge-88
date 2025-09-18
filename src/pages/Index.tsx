@@ -12,9 +12,21 @@ import { useToast } from '@/hooks/use-toast'
 
 const Index = () => {
   const navigate = useNavigate()
-  const { user } = useAuth()
-  const { hasAnyConfig, loading } = useApiConfig()
+  const { user, loading: authLoading } = useAuth()
+  const { hasAnyConfig, loading: configLoading } = useApiConfig()
   const { toast } = useToast()
+
+  // Show loading state while authentication is being checked
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
   const handleStartCreatingPrompts = () => {
     if (!user) {
@@ -27,7 +39,7 @@ const Index = () => {
       return
     }
 
-    if (loading) {
+    if (configLoading) {
       // If still loading, wait
       return
     }
@@ -56,7 +68,7 @@ const Index = () => {
         <LeftSidebar showNavigation={false} />
         <HeroSection 
           onStartCreatingPrompts={handleStartCreatingPrompts}
-          isLoading={loading}
+          isLoading={configLoading}
           user={user}
         />
         <ProcessFlow />

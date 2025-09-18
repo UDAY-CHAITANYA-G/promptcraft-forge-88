@@ -1,29 +1,70 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Building2, Sparkles, Github, Twitter, Linkedin, Mail, Heart, ArrowUp } from "lucide-react"
+import { Building2, Sparkles, Github, Linkedin, Mail, Heart, ArrowUp, Loader2 } from "lucide-react"
 import { Link } from "react-router-dom"
 import { useState } from "react"
-import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { feedbackService, FeedbackData } from "@/services/services"
+import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/hooks/useAuth"
 
 export function Footer() {
   const currentYear = new Date().getFullYear()
+  const { user } = useAuth()
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const [feedback, setFeedback] = useState({
-    name: '',
-    email: '',
+  const { toast } = useToast()
+  const [feedback, setFeedback] = useState<FeedbackData>({
     message: '',
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const mailtoLink = `mailto:zeroxchaitanya@gmail.com?subject=PromptForge Feedback&body=Name: ${feedback.name}\nEmail: ${feedback.email}\nMessage: ${feedback.message}`
-    window.open(mailtoLink, '_blank')
-    alert('Thank you for your feedback!')
+    
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to submit feedback.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+    
+    try {
+      const result = await feedbackService.submitFeedback(feedback, user)
+      
+      if (result.success) {
+        toast({
+          title: "Feedback Sent!",
+          description: "Thank you for your feedback. We'll get back to you soon.",
+        })
+        
+        // Reset form
+        setFeedback({
+          message: '',
+        })
+      } else {
+        toast({
+          title: "Failed to Send",
+          description: result.error || "There was an error sending your feedback. Please try again.",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again later.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -115,58 +156,67 @@ export function Footer() {
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-foreground">Connect With Us</h4>
             <div className="flex items-center gap-4">
-              <Button variant="outline" size="sm" className="rounded-full w-10 h-10 p-0 hover:bg-primary hover:text-primary-foreground transition-all duration-300">
+              <a 
+                href="https://github.com/UDAY-CHAITANYA-G" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center rounded-full w-10 h-10 border border-border bg-background hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+              >
                 <Github className="w-4 h-4" />
-              </Button>
-              <Button variant="outline" size="sm" className="rounded-full w-10 h-10 p-0 hover:bg-primary hover:text-primary-foreground transition-all duration-300">
-                <Twitter className="w-4 h-4" />
-              </Button>
-              <Button variant="outline" size="sm" className="rounded-full w-10 h-10 p-0 hover:bg-primary hover:text-primary-foreground transition-all duration-300">
+              </a>
+              <a 
+                href="https://www.linkedin.com/in/udaychaitanya11/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center rounded-full w-10 h-10 border border-border bg-background hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+              >
                 <Linkedin className="w-4 h-4" />
-              </Button>
-              <Button variant="outline" size="sm" className="rounded-full w-10 h-10 p-0 hover:bg-primary hover:text-primary-foreground transition-all duration-300">
-                <Mail className="w-4 h-4" />
-              </Button>
+              </a>
             </div>
           </div>
 
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-foreground">Provide Feedback</h4>
-            <form onSubmit={handleSubmit} className="space-y-3">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <Input
-                  type="text"
-                  placeholder="Your Name"
-                  value={feedback.name}
-                  onChange={(e) => setFeedback({ ...feedback, name: e.target.value })}
-                  required
-                  className="col-span-1"
-                />
-                <Input
-                  type="email"
-                  placeholder="Your Email"
-                  value={feedback.email}
-                  onChange={(e) => setFeedback({ ...feedback, email: e.target.value })}
-                  required
-                  className="col-span-1"
-                />
-              </div>
-              <Textarea
-                placeholder="Your Feedback"
-                value={feedback.message}
-                onChange={(e) => setFeedback({ ...feedback, message: e.target.value })}
-                required
-                className="min-h-[100px]"
-              />
-              <Button
-                type="submit"
-                size="sm"
-                className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground"
-              >
-                <Mail className="w-4 h-4 mr-2" />
-                Send Feedback
-              </Button>
-            </form>
+              {user ? (
+                <form onSubmit={handleSubmit} className="space-y-3">
+                  <Textarea
+                    placeholder="Your Feedback"
+                    value={feedback.message}
+                    onChange={(e) => setFeedback({ ...feedback, message: e.target.value })}
+                    required
+                    className="min-h-[100px]"
+                  />
+                  <Button
+                    type="submit"
+                    size="sm"
+                    disabled={isSubmitting}
+                    className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Mail className="w-4 h-4 mr-2" />
+                        Send Feedback
+                      </>
+                    )}
+                  </Button>
+                </form>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Please sign in to submit feedback.
+                  </p>
+                  <Link to="/auth">
+                    <Button size="sm" variant="outline" className="w-full">
+                      Sign In to Provide Feedback
+                    </Button>
+                  </Link>
+                </div>
+              )}
           </div>
         </div>
 

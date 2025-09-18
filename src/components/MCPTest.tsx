@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { buildMasterPrompt } from '@/lib/masterPromptConfig';
+import { buildMasterPrompt } from '@/services/services';
 
 export const MCPTest: React.FC = () => {
   const [testPrompt, setTestPrompt] = useState<string>('');

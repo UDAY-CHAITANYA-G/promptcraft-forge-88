@@ -159,7 +159,11 @@ class PromptHistoryService {
         return false;
       }
 
-      const updateData: any = {
+      const updateData: {
+        status: string;
+        updated_at: string;
+        ai_response?: string;
+      } = {
         status: status,
         updated_at: new Date().toISOString()
       };

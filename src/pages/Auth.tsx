@@ -1,39 +1,73 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { Building2, Loader2, Home } from 'lucide-react'
+import { Building2, Loader2, Home, Chrome } from 'lucide-react'
 import { Navbar } from '@/components/Navbar'
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const Auth = () => {
-  const { user, loading, signIn, signUp } = useAuth()
+  const { user, loading, signIn, signUp, signInWithGoogle } = useAuth()
   const navigate = useNavigate()
+  const { toast } = useToast()
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showEmailVerification, setShowEmailVerification] = useState(false)
+  const [verificationEmail, setVerificationEmail] = useState('')
+  const [currentTab, setCurrentTab] = useState('signin')
+
+  // Redirect to homepage if user is already authenticated
+  useEffect(() => {
+    if (user && !loading) {
+      navigate('/')
+    }
+  }, [user, loading, navigate])
 
   const handleSignUp = async () => {
     if (password !== confirmPassword) {
-      setError('Passwords do not match')
+      toast({
+        title: "Error",
+        description: "Passwords do not match",
+        variant: "destructive",
+      })
       return
     }
     
     setIsSubmitting(true)
-    setError('')
     
     try {
-      await signUp(email, password)
-      navigate('/api-config')
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign up')
+      const result = await signUp(email, password)
+      if (result.success) {
+        // Show email verification state instead of navigating
+        setVerificationEmail(email)
+        setShowEmailVerification(true)
+        // Clear form data
+        setEmail('')
+        setPassword('')
+        setConfirmPassword('')
+      } else {
+        // Stay on current screen if signup fails
+        toast({
+          title: "Error",
+          description: result.error?.message || 'Failed to sign up',
+          variant: "destructive",
+        })
+      }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to sign up';
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -41,16 +75,108 @@ const Auth = () => {
 
   const handleSignIn = async () => {
     setIsSubmitting(true)
-    setError('')
     
     try {
-      await signIn(email, password)
-      navigate('/')
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign in')
+      const result = await signIn(email, password)
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: "Signed in successfully!",
+        })
+        // Only navigate on successful signin
+        navigate('/')
+      } else {
+        // Stay on current screen if signin fails
+        toast({
+          title: "Error",
+          description: result.error?.message || 'Failed to sign in',
+          variant: "destructive",
+        })
+      }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to sign in';
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      })
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleGoogle = async () => {
+    setIsSubmitting(true)
+    try {
+      const isSignUpMode = currentTab === 'signup'
+      const result = await signInWithGoogle(isSignUpMode)
+      if (result.success) {
+        // The popup will handle the authentication flow
+        // No need to show additional notifications here as they're handled in the hook
+      } else {
+        // Stay on current screen if Google signin fails
+        toast({
+          title: "Error",
+          description: result.error?.message || 'Failed to sign in with Google',
+          variant: "destructive",
+        })
+      }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to sign in with Google';
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleResendVerification = async () => {
+    if (!verificationEmail) {
+      toast({
+        title: "Error",
+        description: "No email address found",
+        variant: "destructive",
+      })
+      return
+    }
+    
+    setIsSubmitting(true)
+    try {
+      // Resend verification email using Supabase's resend method
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: verificationEmail,
+      })
+      
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to resend verification email",
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Verification email resent",
+          description: "A new verification email has been sent to your inbox.",
+        })
+      }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to resend verification email";
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleBackToSignUp = () => {
+    setShowEmailVerification(false)
   }
 
   if (loading) {
@@ -64,10 +190,72 @@ const Auth = () => {
     )
   }
 
-  if (user) {
-    navigate('/')
-    return null
+  // Show email verification screen if signup was successful
+  if (showEmailVerification) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
+        <Navbar />
+        <div className="pt-20 flex items-center justify-center p-4">
+          <div className="w-full max-w-md">
+            <Card className="bg-card/80 backdrop-blur-sm border-border shadow-elegant">
+              <CardHeader className="text-center">
+                <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <CardTitle className="text-xl text-green-600">Account Created Successfully! 🎉</CardTitle>
+                <CardDescription className="text-center mt-2">
+                  Your account has been created and a verification email has been sent to <strong>{verificationEmail}</strong>.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-blue-800 mb-2">Next Steps:</h4>
+                  <ol className="text-sm text-blue-700 space-y-1 list-decimal list-inside">
+                    <li>Check your email inbox (and spam folder)</li>
+                    <li>Click the verification link in the email</li>
+                    <li>Return to this app to sign in</li>
+                  </ol>
+                  <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
+                    💡 <strong>Tip:</strong> If you don't see the email, check your spam/junk folder
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <Button
+                    onClick={handleResendVerification}
+                    className="w-full"
+                    disabled={isSubmitting}
+                    variant="outline"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Resending...
+                      </>
+                    ) : (
+                      'Resend Verification Email'
+                    )}
+                  </Button>
+                  
+                  <Button
+                    onClick={handleBackToSignUp}
+                    className="w-full"
+                    variant="ghost"
+                  >
+                    Back to Sign Up
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    )
   }
+
+  // User will be automatically redirected by useEffect if authenticated
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
@@ -77,15 +265,6 @@ const Auth = () => {
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gradient mb-2">PromptForge</h1>
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0 hover:bg-muted/50 rounded-full"
-                onClick={() => window.location.href = '/'}
-                title="Go to Home"
-              >
-                <Home className="h-4 w-4" />
-              </Button>
               <Building2 className="w-4 h-4" />
               <span>ZeroXTech | Chaitanya</span>
             </div>
@@ -100,13 +279,33 @@ const Auth = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="signin" className="space-y-4">
+              <Tabs defaultValue="signin" value={currentTab} onValueChange={setCurrentTab} className="space-y-4">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="signin">Sign In</TabsTrigger>
                   <TabsTrigger value="signup">Sign Up</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="signin" className="space-y-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleGoogle}
+                    className="w-full"
+                    disabled={isSubmitting}
+                  >
+                    <Chrome className="w-4 h-4 mr-2" />
+                    {isSubmitting ? 'Signing in...' : 'Sign in with Google'}
+                  </Button>
+
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-card px-2 text-muted-foreground">Or sign in with email</span>
+                    </div>
+                  </div>
+                  
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
@@ -144,6 +343,26 @@ const Auth = () => {
                 </TabsContent>
                 
                 <TabsContent value="signup" className="space-y-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleGoogle}
+                    className="w-full"
+                    disabled={isSubmitting}
+                  >
+                    <Chrome className="w-4 h-4 mr-2" />
+                    {isSubmitting ? 'Signing up...' : 'Sign up with Google'}
+                  </Button>
+
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-card px-2 text-muted-foreground">Or sign up with email</span>
+                    </div>
+                  </div>
+                  
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">Email</Label>
                     <Input
@@ -191,13 +410,6 @@ const Auth = () => {
                 </TabsContent>
               </Tabs>
               
-              {error && (
-                <Alert className="mt-4 border-destructive/50 bg-destructive/10">
-                  <AlertDescription className="text-destructive">
-                    {error}
-                  </AlertDescription>
-                </Alert>
-              )}
             </CardContent>
           </Card>
           

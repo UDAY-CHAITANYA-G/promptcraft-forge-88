@@ -355,7 +355,10 @@ ${prompt}`
       }
 
       const data = await response.json();
-      const availableModels = data.data?.map((model: any) => model.name) || [];
+      interface ModelData {
+        name: string;
+      }
+      const availableModels = data.data?.map((model: ModelData) => model.name) || [];
       
       console.log('Available Gemini models:', availableModels);
       
@@ -390,7 +393,10 @@ ${prompt}`
       }
 
       const data = await response.json();
-      return data.data?.map((model: any) => model.name) || [];
+      interface ModelData {
+        name: string;
+      }
+      return data.data?.map((model: ModelData) => model.name) || [];
     } catch (error) {
       console.error('Failed to get available Gemini models:', error);
       return [];

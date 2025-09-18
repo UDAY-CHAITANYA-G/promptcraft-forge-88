@@ -1,8 +1,21 @@
-# Welcome to your Lovable project
+# PromptCraft Forge - AI Prompt Generation Platform
 
 ## Project info
 
 **URL**: https://lovable.dev/projects/e08736c2-70e7-407f-9cb8-700968702efc
+
+## 📚 **Rulebooks & Standards**
+
+For development standards and code review guidelines, see the [rulebooks directory](./rulebooks/):
+- [Code Review Checklist](./rulebooks/CODE_REVIEW_CHECKLIST.md) - Comprehensive code quality standards
+- [Application Architecture Rulebook](./rulebooks/APPLICATION_ARCHITECTURE_RULEBOOK.md) - Architectural patterns and structural guidelines
+- [Styling Rulebook](./rulebooks/STYLING_RULEBOOK.md) - Styling standards and design system
+- [Services Rulebook](./rulebooks/SERVICES_RULEBOOK.md) - Service architecture and implementation patterns
+- [Configuration Rulebook](./rulebooks/CONFIGURATION_RULEBOOK.md) - Configuration architecture and environment management
+- [Database Rulebook](./rulebooks/DATABASE_RULEBOOK.md) - Comprehensive database architecture, migration strategy, maintenance, and analytics for restructured Supabase system
+- [Authentication & UI Flow Rulebook](./rulebooks/AUTHENTICATION_UI_FLOW_RULEBOOK.md) - Authentication patterns and UI flow standards
+- [API Configuration & Prompt Generation Rulebook](./rulebooks/API_CONFIG_PROMPT_GENERATION_RULEBOOK.md) - API configuration and prompt generation patterns
+- [Rulebooks Overview](./rulebooks/README.md) - Guide to using project rulebooks
 
 ## How can I edit this code?
 
@@ -59,6 +72,26 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+- EmailJS (for feedback form emails)
+
+## EmailJS Setup
+
+This project includes a feedback form that sends emails using EmailJS. To set it up:
+
+1. **Quick Setup:**
+   ```sh
+   npm run setup-emailjs
+   ```
+
+2. **Manual Setup:**
+   - Copy `src/lib/emailConfig.private.template.ts` to `src/lib/emailConfig.private.ts`
+   - Update the credentials in the private file with your EmailJS details
+   - The private file is automatically ignored by Git
+
+3. **Detailed Instructions:**
+   See [EMAILJS_SETUP.md](./EMAILJS_SETUP.md) for complete setup guide.
+
+**Note:** The private configuration file contains sensitive credentials and is automatically excluded from version control.
 
 ## How can I deploy this project?
 

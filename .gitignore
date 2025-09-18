@@ -22,3 +22,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# # Private configuration files
+# src/services/lib/emailConfig.private.ts
+# *.private.ts
+# *.private.js
+# .env
+# .env.local
+# .env.development.local
+# .env.test.local
+# .env.production.local

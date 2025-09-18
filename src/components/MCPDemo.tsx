@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Bot, Sparkles, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { useMCP } from '@/hooks/useMCP';
-import { getMasterPrompt, buildMasterPrompt } from '@/lib/masterPromptConfig';
+import { getMasterPrompt, buildMasterPrompt } from '@/services/services';
 
 export const MCPDemo: React.FC = () => {
   const [selectedFramework, setSelectedFramework] = useState('roses');
