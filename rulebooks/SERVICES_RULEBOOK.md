@@ -1,7 +1,5 @@
 # PromptCraft Forge - Services Rulebook
 
-**Last Modified:** September 18th, 2025
-
 ## 📋 **Overview**
 This rulebook defines the architecture, patterns, and standards for the PromptCraft Forge services layer. It ensures consistent service implementation, proper organization, and maintainable code across all application services.
 
