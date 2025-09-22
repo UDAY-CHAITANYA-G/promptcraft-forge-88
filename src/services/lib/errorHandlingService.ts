@@ -244,3 +244,4 @@ export const createHookErrorHandler = (context: string) => {
 export const createServiceErrorHandler = (serviceName: string) => {
   return errorHandlingService.createServiceErrorHandler(serviceName);
 };
+

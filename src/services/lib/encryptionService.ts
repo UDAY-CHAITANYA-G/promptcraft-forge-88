@@ -69,3 +69,4 @@ export const decryptApiKey = (encryptedApiKey: string): string => {
 export const isEncryptionConfigured = (): boolean => {
   return encryptionService.isConfigured();
 };
+

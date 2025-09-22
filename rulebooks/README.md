@@ -122,6 +122,6 @@ If you have questions about rulebooks or need clarification on standards:
 
 ---
 
-**Last Updated**: January 2025  
+**Last Updated**: September 18th, 2025  
 **Maintainer**: Development Team  
 **Version**: 1.0

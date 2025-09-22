@@ -193,3 +193,4 @@ INSERT INTO public.prompt_templates (user_id, name, description, framework_id, t
     true
 )
 ON CONFLICT DO NOTHING;
+

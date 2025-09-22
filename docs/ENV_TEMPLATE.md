@@ -129,3 +129,4 @@ VITE_MOCK_API_RESPONSES=false
 - Never share your actual credentials
 - Use different credentials for development and production
 - Change the default encryption key in production
+

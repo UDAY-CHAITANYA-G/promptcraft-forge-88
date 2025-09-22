@@ -517,3 +517,4 @@ CREATE TRIGGER update_prompt_templates_updated_at
 CREATE TRIGGER update_feedback_updated_at
     BEFORE UPDATE ON public.feedback
     FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
